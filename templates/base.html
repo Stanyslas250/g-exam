@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr" data-theme="emerald">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}G-Exam{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        .sidebar-link { transition: all 0.15s ease; }
+        .sidebar-link:hover { transform: translateX(2px); }
+        .sidebar-link.active { background: oklch(var(--p) / 0.12); color: oklch(var(--p)); font-weight: 600; }
+        .stat-card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px -5px rgba(0,0,0,0.1); }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-base-200 min-h-screen">
+
+<div class="drawer lg:drawer-open">
+    <input id="sidebar-toggle" type="checkbox" class="drawer-toggle" />
+
+    <!-- Main content -->
+    <div class="drawer-content flex flex-col">
+        {% include "partials/header.html" %}
+
+        <main class="flex-1 p-4 lg:p-6 fade-in">
+            {% if messages %}
+            <div class="mb-4 space-y-2">
+                {% for message in messages %}
+                <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-error{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %} shadow-sm">
+                    <span>{{ message }}</span>
+                    <button onclick="this.parentElement.remove()" class="btn btn-ghost btn-xs">✕</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Sidebar -->
+    {% include "partials/sidebar.html" %}
+</div>
+
+<script>
+    lucide.createIcons();
+    // Auto-dismiss alerts after 5s
+    document.querySelectorAll('.alert').forEach(el => {
+        setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 5000);
+    });
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

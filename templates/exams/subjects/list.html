@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Épreuves — G-Exam{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold">Épreuves</h2>
+            <p class="text-base-content/60 text-sm mt-1">{{ subjects|length }} épreuve{{ subjects|length|pluralize }}</p>
+        </div>
+        <a href="{% url 'exams:subject_create' %}" class="btn btn-primary btn-sm gap-1">
+            <i data-lucide="plus" class="w-4 h-4"></i> Ajouter
+        </a>
+    </div>
+
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="overflow-x-auto">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Coefficient</th>
+                        <th>Note max</th>
+                        <th>Notes saisies</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subject in subjects %}
+                    <tr class="hover">
+                        <td class="font-medium">{{ subject.name }}</td>
+                        <td>
+                            {% if subject.coefficient %}
+                            <span class="badge badge-primary badge-sm">{{ subject.coefficient }}</span>
+                            {% else %}
+                            <span class="text-base-content/30">—</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ subject.max_score }}</td>
+                        <td><span class="badge badge-ghost badge-sm">{{ subject.scores_count }}</span></td>
+                        <td class="text-right">
+                            <div class="flex justify-end gap-1">
+                                <a href="{% url 'exams:scores_by_subject' subject.pk %}" class="btn btn-ghost btn-xs gap-1">
+                                    <i data-lucide="pen-line" class="w-3.5 h-3.5"></i> Notes
+                                </a>
+                                <a href="{% url 'exams:subject_edit' subject.pk %}" class="btn btn-ghost btn-xs">
+                                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                                </a>
+                                <form method="post" action="{% url 'exams:subject_delete' subject.pk %}"
+                                      onsubmit="return confirm('Supprimer cette épreuve et toutes ses notes ?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-ghost btn-xs text-error">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-12 text-base-content/40">
+                            <i data-lucide="book-open" class="w-10 h-10 mx-auto mb-2 opacity-30"></i>
+                            <p>Aucune épreuve enregistrée</p>
+                            <a href="{% url 'exams:subject_create' %}" class="btn btn-primary btn-sm mt-3 gap-1">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Ajouter une épreuve
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

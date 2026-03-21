@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr" data-theme="emerald">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion — G-Exam</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="bg-base-200 min-h-screen flex items-center justify-center p-4">
+
+<div class="w-full max-w-md">
+    <div class="text-center mb-8">
+        <div class="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="graduation-cap" class="w-9 h-9 text-primary-content"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-base-content">G-Exam</h1>
+        <p class="text-base-content/60 mt-1">Système de gestion d'examens</p>
+    </div>
+
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title text-lg justify-center mb-2">Connexion</h2>
+
+            {% if form.errors %}
+            <div class="alert alert-error text-sm">
+                <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                <span>Nom d'utilisateur ou mot de passe incorrect.</span>
+            </div>
+            {% endif %}
+
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                <div class="form-control">
+                    <label class="label"><span class="label-text font-medium">Nom d'utilisateur</span></label>
+                    <div class="relative">
+                        <input type="text" name="username" class="input input-bordered w-full pl-10"
+                               placeholder="admin" required autofocus value="{{ form.username.value|default:'' }}">
+                        <i data-lucide="user" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></i>
+                    </div>
+                </div>
+                <div class="form-control">
+                    <label class="label"><span class="label-text font-medium">Mot de passe</span></label>
+                    <div class="relative">
+                        <input type="password" name="password" class="input input-bordered w-full pl-10"
+                               placeholder="••••••••" required>
+                        <i data-lucide="lock" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></i>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-full">
+                    <i data-lucide="log-in" class="w-4 h-4"></i>
+                    Se connecter
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <p class="text-center text-xs text-base-content/40 mt-6">G-Exam &copy; {{ year|default:"2025" }} — Gestion d'examens scolaires</p>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

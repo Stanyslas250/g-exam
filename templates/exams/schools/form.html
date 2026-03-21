@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} — G-Exam{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div>
+        <a href="{% url 'exams:schools_list' %}" class="btn btn-ghost btn-sm gap-1 mb-2">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Retour
+        </a>
+        <h2 class="text-2xl font-bold">{{ title }}</h2>
+    </div>
+
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body">
+            <form method="post" class="space-y-4 max-w-lg">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="form-control">
+                    <label class="label"><span class="label-text font-medium">{{ field.label }}</span></label>
+                    {{ field }}
+                    {% if field.errors %}<label class="label"><span class="label-text-alt text-error">{{ field.errors.0 }}</span></label>{% endif %}
+                </div>
+                {% endfor %}
+                <div class="flex gap-2 pt-2">
+                    <button type="submit" class="btn btn-primary gap-1">
+                        <i data-lucide="save" class="w-4 h-4"></i> Enregistrer
+                    </button>
+                    <a href="{% url 'exams:schools_list' %}" class="btn btn-ghost">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

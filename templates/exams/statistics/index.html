@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Statistiques — G-Exam{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div>
+        <h2 class="text-2xl font-bold">Statistiques</h2>
+        <p class="text-base-content/60 text-sm mt-1">Analyses et graphiques de l'examen</p>
+    </div>
+
+    <!-- Global stats cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="stat-card card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body p-4 text-center">
+                <p class="text-xs text-base-content/50 uppercase font-semibold">Total</p>
+                <p class="text-2xl font-bold">{{ stats.total }}</p>
+            </div>
+        </div>
+        <div class="stat-card card bg-success/10 border border-success/20">
+            <div class="card-body p-4 text-center">
+                <p class="text-xs text-success font-semibold uppercase">Admis</p>
+                <p class="text-2xl font-bold text-success">{{ stats.passed }}</p>
+            </div>
+        </div>
+        <div class="stat-card card bg-error/10 border border-error/20">
+            <div class="card-body p-4 text-center">
+                <p class="text-xs text-error font-semibold uppercase">Ajournés</p>
+                <p class="text-2xl font-bold text-error">{{ stats.failed }}</p>
+            </div>
+        </div>
+        <div class="stat-card card bg-primary/10 border border-primary/20">
+            <div class="card-body p-4 text-center">
+                <p class="text-xs text-primary font-semibold uppercase">Taux réussite</p>
+                <p class="text-2xl font-bold text-primary">{{ stats.pass_rate }}%</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body p-4">
+                <p class="text-xs text-base-content/50">Moyenne générale</p>
+                <p class="text-xl font-bold">{{ stats.overall_average }}/20</p>
+            </div>
+        </div>
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body p-4">
+                <p class="text-xs text-base-content/50">Meilleure moyenne</p>
+                <p class="text-xl font-bold text-success">{{ stats.highest }}/20</p>
+            </div>
+        </div>
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body p-4">
+                <p class="text-xs text-base-content/50">Plus basse moyenne</p>
+                <p class="text-xl font-bold text-error">{{ stats.lowest }}/20</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid lg:grid-cols-2 gap-6">
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body">
+                <h3 class="card-title text-base">Distribution des moyennes</h3>
+                <canvas id="distributionChart" height="250"></canvas>
+            </div>
+        </div>
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body">
+                <h3 class="card-title text-base">Résultats par genre</h3>
+                <canvas id="genderChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subject stats -->
+    {% if subject_stats %}
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body">
+            <h3 class="card-title text-base mb-4">Statistiques par épreuve</h3>
+            <div class="overflow-x-auto">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Épreuve</th>
+                            <th>Copies</th>
+                            <th>Moyenne</th>
+                            <th>Max</th>
+                            <th>Min</th>
+                            <th>≥ moyenne</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ss in subject_stats %}
+                        <tr class="hover">
+                            <td class="font-medium">{{ ss.name }}</td>
+                            <td>{{ ss.count }}</td>
+                            <td class="font-semibold">{{ ss.average }}</td>
+                            <td class="text-success">{{ ss.highest }}</td>
+                            <td class="text-error">{{ ss.lowest }}</td>
+                            <td>{{ ss.above_avg }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body">
+            <h3 class="card-title text-base">Moyennes par épreuve</h3>
+            <canvas id="subjectChart" height="200"></canvas>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const distribution = {{ distribution|safe }};
+    const subjectStats = {{ subject_stats_json|safe }};
+    const genderStats = {{ stats.gender_stats|safe }};
+
+    // Distribution chart
+    if (distribution.length) {
+        new Chart(document.getElementById('distributionChart'), {
+            type: 'bar',
+            data: {
+                labels: distribution.map(d => d.label),
+                datasets: [{
+                    label: 'Nombre d\'élèves',
+                    data: distribution.map(d => d.count),
+                    backgroundColor: 'rgba(37, 99, 235, 0.6)',
+                    borderColor: 'rgba(37, 99, 235, 1)',
+                    borderWidth: 1, borderRadius: 6,
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+        });
+    }
+
+    // Gender chart
+    const genderLabels = [];
+    const genderPassed = [];
+    const genderFailed = [];
+    if (genderStats && genderStats.M) { genderLabels.push('Garçons'); genderPassed.push(genderStats.M.passed); genderFailed.push(genderStats.M.failed); }
+    if (genderStats && genderStats.F) { genderLabels.push('Filles'); genderPassed.push(genderStats.F.passed); genderFailed.push(genderStats.F.failed); }
+    if (genderLabels.length) {
+        new Chart(document.getElementById('genderChart'), {
+            type: 'bar',
+            data: {
+                labels: genderLabels,
+                datasets: [
+                    { label: 'Admis', data: genderPassed, backgroundColor: 'rgba(34, 197, 94, 0.6)', borderRadius: 6 },
+                    { label: 'Ajournés', data: genderFailed, backgroundColor: 'rgba(239, 68, 68, 0.6)', borderRadius: 6 },
+                ]
+            },
+            options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+        });
+    }
+
+    // Subject chart
+    if (subjectStats.length) {
+        new Chart(document.getElementById('subjectChart'), {
+            type: 'bar',
+            data: {
+                labels: subjectStats.map(s => s.name),
+                datasets: [{
+                    label: 'Moyenne',
+                    data: subjectStats.map(s => s.average),
+                    backgroundColor: 'rgba(139, 92, 246, 0.6)',
+                    borderColor: 'rgba(139, 92, 246, 1)',
+                    borderWidth: 1, borderRadius: 6,
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 20 } } }
+        });
+    }
+</script>
+{% endblock %}

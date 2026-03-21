@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Salles — G-Exam{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold">Salles d'examen</h2>
+            <p class="text-base-content/60 text-sm mt-1">
+                Capacité totale : {{ total_capacity }} places · {{ total_students }} élève{{ total_students|pluralize }}
+            </p>
+        </div>
+        <div class="flex gap-2">
+            <form method="post" action="{% url 'exams:rooms_dispatch' %}" onsubmit="return confirm('Répartir tous les élèves dans les salles ? (Les assignations existantes seront supprimées)')">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline btn-sm gap-1" {% if not rooms %}disabled{% endif %}>
+                    <i data-lucide="shuffle" class="w-4 h-4"></i> Répartir automatiquement
+                </button>
+            </form>
+            <a href="{% url 'exams:room_create' %}" class="btn btn-primary btn-sm gap-1">
+                <i data-lucide="plus" class="w-4 h-4"></i> Ajouter
+            </a>
+        </div>
+    </div>
+
+    {% if total_students > total_capacity and rooms %}
+    <div class="alert alert-warning text-sm">
+        <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+        <span>Capacité insuffisante : {{ total_capacity }} places pour {{ total_students }} élèves. Ajoutez des salles.</span>
+    </div>
+    {% endif %}
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for room in rooms %}
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body p-5">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-info/10 flex items-center justify-center shrink-0">
+                            <i data-lucide="door-open" class="w-5 h-5 text-info"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">{{ room.name }}</h3>
+                            <p class="text-xs text-base-content/50">Capacité : {{ room.capacity }} places</p>
+                        </div>
+                    </div>
+                    <form method="post" action="{% url 'exams:room_delete' room.pk %}" onsubmit="return confirm('Supprimer cette salle ?')">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-ghost btn-xs text-error">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </form>
+                </div>
+                <div class="mt-3">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span>Occupée</span>
+                        <span>{{ room.assigned_count }}/{{ room.capacity }}</span>
+                    </div>
+                    <progress class="progress progress-info w-full"
+                              value="{{ room.assigned_count }}"
+                              max="{{ room.capacity }}"></progress>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-12 text-base-content/40">
+            <i data-lucide="door-open" class="w-10 h-10 mx-auto mb-2 opacity-30"></i>
+            <p>Aucune salle configurée</p>
+            <a href="{% url 'exams:room_create' %}" class="btn btn-primary btn-sm mt-3 gap-1">
+                <i data-lucide="plus" class="w-4 h-4"></i> Ajouter une salle
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

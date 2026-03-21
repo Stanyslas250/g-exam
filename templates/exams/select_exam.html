@@ -1,0 +1,143 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr" data-theme="emerald">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sélection d'examen — G-Exam</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="bg-base-200 min-h-screen">
+
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <div class="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="graduation-cap" class="w-8 h-8 text-primary-content"></i>
+        </div>
+        <h1 class="text-3xl font-bold">G-Exam</h1>
+        <p class="text-base-content/60 mt-1">Sélectionnez un examen pour commencer</p>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-6">
+        <!-- Enter code -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title gap-2">
+                    <i data-lucide="key-round" class="w-5 h-5 text-primary"></i>
+                    Accès par code
+                </h2>
+                <p class="text-sm text-base-content/60 mb-4">Entrez le code d'accès de l'examen</p>
+
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+                    <div class="form-control">
+                        {{ form.code }}
+                    </div>
+                    {% if error %}
+                    <div class="alert alert-error text-sm py-2">
+                        <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                        <span>{{ error }}</span>
+                    </div>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary w-full">
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        Accéder à l'examen
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Create new -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title gap-2">
+                    <i data-lucide="plus-circle" class="w-5 h-5 text-secondary"></i>
+                    Nouvel examen
+                </h2>
+                <p class="text-sm text-base-content/60 mb-4">Créez ou importez un examen</p>
+                <a href="{% url 'exams:exam_create' %}" class="btn btn-secondary w-full">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    Créer un examen
+                </a>
+                <div class="divider text-xs">OU</div>
+                <a href="{% url 'exams:exam_import' %}" class="btn btn-outline btn-accent w-full gap-1">
+                    <i data-lucide="file-up" class="w-4 h-4"></i>
+                    Importer depuis Excel
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if exams %}
+    <!-- Existing exams list -->
+    <div class="card bg-base-100 shadow-xl mt-6">
+        <div class="card-body">
+            <h2 class="card-title gap-2 mb-4">
+                <i data-lucide="list" class="w-5 h-5 text-primary"></i>
+                Examens existants
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="table table-zebra">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Code</th>
+                            <th>Année</th>
+                            <th>Statut</th>
+                            <th class="text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for exam in exams %}
+                        <tr>
+                            <td class="font-medium">{{ exam.name }}</td>
+                            <td><span class="badge badge-outline badge-sm font-mono">{{ exam.code }}</span></td>
+                            <td>{{ exam.year }}</td>
+                            <td>
+                                {% if exam.is_locked %}
+                                <span class="badge badge-warning badge-sm gap-1">
+                                    <i data-lucide="lock" class="w-3 h-3"></i> Verrouillé
+                                </span>
+                                {% else %}
+                                <span class="badge badge-success badge-sm gap-1">
+                                    <i data-lucide="unlock" class="w-3 h-3"></i> Actif
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-right">
+                                <form method="post" action="{% url 'exams:switch_exam' %}" class="inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="exam_id" value="{{ exam.id }}">
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+                                        Sélectionner
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Logout -->
+    <div class="text-center mt-6">
+        <form method="post" action="{% url 'exams:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-ghost btn-sm gap-1 text-base-content/50">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+                Déconnexion
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

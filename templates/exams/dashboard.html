@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Tableau de bord — G-Exam{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Title -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold">Tableau de bord</h2>
+            <p class="text-base-content/60 text-sm mt-1">Vue d'ensemble de l'examen <strong>{{ exam.name }}</strong> ({{ exam.year }})</p>
+        </div>
+        {% if exam.is_locked %}
+        <div class="badge badge-warning gap-1 py-3 px-4">
+            <i data-lucide="lock" class="w-4 h-4"></i> Examen verrouillé
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Stats cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="stat-card card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-base-content/50 uppercase font-semibold tracking-wider">Candidats</p>
+                        <p class="text-2xl font-bold mt-1">{{ candidates_count }}</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <i data-lucide="users" class="w-5 h-5 text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="stat-card card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-base-content/50 uppercase font-semibold tracking-wider">Épreuves</p>
+                        <p class="text-2xl font-bold mt-1">{{ subjects_count }}</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center">
+                        <i data-lucide="book-open" class="w-5 h-5 text-secondary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="stat-card card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-base-content/50 uppercase font-semibold tracking-wider">Établissements</p>
+                        <p class="text-2xl font-bold mt-1">{{ schools_count }}</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                        <i data-lucide="building-2" class="w-5 h-5 text-accent"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="stat-card card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-base-content/50 uppercase font-semibold tracking-wider">Salles</p>
+                        <p class="text-2xl font-bold mt-1">{{ rooms_count }}</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-lg bg-info/10 flex items-center justify-center">
+                        <i data-lucide="door-open" class="w-5 h-5 text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="stat-card card bg-success/10 border border-success/20">
+            <div class="card-body p-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-success/20 flex items-center justify-center">
+                        <i data-lucide="check-circle" class="w-6 h-6 text-success"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-success font-medium">Admis</p>
+                        <p class="text-3xl font-bold text-success">{{ passed }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="stat-card card bg-error/10 border border-error/20">
+            <div class="card-body p-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-error/20 flex items-center justify-center">
+                        <i data-lucide="x-circle" class="w-6 h-6 text-error"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-error font-medium">Ajournés</p>
+                        <p class="text-3xl font-bold text-error">{{ failed }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="stat-card card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body p-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                        <i data-lucide="percent" class="w-6 h-6 text-primary"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-base-content/60 font-medium">Taux de réussite</p>
+                        <p class="text-3xl font-bold text-primary">{{ pass_rate }}%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Averages -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body p-4 flex-row items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center shrink-0">
+                    <i data-lucide="calculator" class="w-5 h-5 text-warning"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-base-content/50">Moyenne générale</p>
+                    <p class="text-xl font-bold">{{ overall_average }}/20</p>
+                </div>
+            </div>
+        </div>
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body p-4 flex-row items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center shrink-0">
+                    <i data-lucide="arrow-up" class="w-5 h-5 text-success"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-base-content/50">Meilleure moyenne</p>
+                    <p class="text-xl font-bold">{{ highest_avg }}/20</p>
+                </div>
+            </div>
+        </div>
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body p-4 flex-row items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-error/10 flex items-center justify-center shrink-0">
+                    <i data-lucide="arrow-down" class="w-5 h-5 text-error"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-base-content/50">Plus basse moyenne</p>
+                    <p class="text-xl font-bold">{{ lowest_avg }}/20</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick links -->
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-5">
+            <h3 class="font-semibold mb-3">Actions rapides</h3>
+            <div class="flex flex-wrap gap-2">
+                <a href="{% url 'exams:students_list' %}" class="btn btn-sm btn-outline gap-1">
+                    <i data-lucide="users" class="w-4 h-4"></i> Gérer les élèves
+                </a>
+                <a href="{% url 'exams:scores' %}" class="btn btn-sm btn-outline gap-1">
+                    <i data-lucide="pen-line" class="w-4 h-4"></i> Saisir les notes
+                </a>
+                <a href="{% url 'exams:rankings' %}" class="btn btn-sm btn-outline gap-1">
+                    <i data-lucide="trophy" class="w-4 h-4"></i> Voir les classements
+                </a>
+                <a href="{% url 'exams:exports' %}" class="btn btn-sm btn-outline gap-1">
+                    <i data-lucide="download" class="w-4 h-4"></i> Exporter
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

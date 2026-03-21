@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Paramètres — G-Exam{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div>
+        <h2 class="text-2xl font-bold">Paramètres</h2>
+        <p class="text-base-content/60 text-sm mt-1">Configuration de l'examen et informations système</p>
+    </div>
+
+    <!-- Exam info card -->
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body">
+            <h3 class="card-title text-base gap-2">
+                <i data-lucide="file-text" class="w-5 h-5 text-primary"></i>
+                Informations de l'examen
+            </h3>
+            <div class="grid sm:grid-cols-2 gap-4 mt-3">
+                <div>
+                    <p class="text-xs text-base-content/50 uppercase font-semibold">Nom</p>
+                    <p class="font-medium">{{ exam.name }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-base-content/50 uppercase font-semibold">Code d'accès</p>
+                    <p class="font-mono badge badge-outline">{{ exam.code }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-base-content/50 uppercase font-semibold">Année</p>
+                    <p class="font-medium">{{ exam.year }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-base-content/50 uppercase font-semibold">Seuil de réussite</p>
+                    <p class="font-medium">{{ exam.passing_grade }}/20</p>
+                </div>
+                <div>
+                    <p class="text-xs text-base-content/50 uppercase font-semibold">Statut</p>
+                    {% if exam.is_locked %}
+                    <span class="badge badge-warning gap-1"><i data-lucide="lock" class="w-3 h-3"></i> Verrouillé</span>
+                    {% else %}
+                    <span class="badge badge-success gap-1"><i data-lucide="unlock" class="w-3 h-3"></i> Actif</span>
+                    {% endif %}
+                </div>
+                <div>
+                    <p class="text-xs text-base-content/50 uppercase font-semibold">Créé le</p>
+                    <p class="font-medium">{{ exam.created_at|date:"d/m/Y à H:i" }}</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'exams:exam_setup' %}" class="btn btn-sm btn-outline gap-1">
+                    <i data-lucide="settings-2" class="w-4 h-4"></i> Modifier la configuration
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mentions config -->
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body">
+            <h3 class="card-title text-base gap-2">
+                <i data-lucide="award" class="w-5 h-5 text-secondary"></i>
+                Barème des mentions
+            </h3>
+            <div class="overflow-x-auto mt-3">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Mention</th>
+                            <th>Moyenne requise</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><span class="badge badge-error badge-sm">Ajourné</span></td><td>&lt; {{ exam.passing_grade }}</td></tr>
+                        <tr><td><span class="badge badge-success badge-sm">Passable</span></td><td>{{ exam.passing_grade }} — 11.99</td></tr>
+                        <tr><td><span class="badge badge-info badge-sm">Assez Bien</span></td><td>12 — 13.99</td></tr>
+                        <tr><td><span class="badge badge-accent badge-sm">Bien</span></td><td>14 — 15.99</td></tr>
+                        <tr><td><span class="badge badge-secondary badge-sm">Très Bien</span></td><td>16 — 17.99</td></tr>
+                        <tr><td><span class="badge badge-primary badge-sm">Excellent</span></td><td>18 — 20</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- System info -->
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body">
+            <h3 class="card-title text-base gap-2">
+                <i data-lucide="info" class="w-5 h-5 text-info"></i>
+                Système
+            </h3>
+            <div class="grid sm:grid-cols-2 gap-4 mt-3 text-sm">
+                <div>
+                    <p class="text-xs text-base-content/50 uppercase font-semibold">Application</p>
+                    <p>G-Exam v1.0</p>
+                </div>
+                <div>
+                    <p class="text-xs text-base-content/50 uppercase font-semibold">Framework</p>
+                    <p>Django 5.x</p>
+                </div>
+                <div>
+                    <p class="text-xs text-base-content/50 uppercase font-semibold">Base de données</p>
+                    <p>PostgreSQL</p>
+                </div>
+                <div>
+                    <p class="text-xs text-base-content/50 uppercase font-semibold">Utilisateur</p>
+                    <p>{{ request.user.username }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

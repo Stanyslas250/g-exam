@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Classements — G-Exam{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div>
+        <h2 class="text-2xl font-bold">Classements</h2>
+        <p class="text-base-content/60 text-sm mt-1">Classement des élèves et des établissements</p>
+    </div>
+
+    <!-- Tabs -->
+    <div role="tablist" class="tabs tabs-bordered">
+        <a href="?tab=students" role="tab" class="tab {% if tab == 'students' %}tab-active{% endif %}">
+            Élèves
+        </a>
+        <a href="?tab=schools" role="tab" class="tab {% if tab == 'schools' %}tab-active{% endif %}">
+            Établissements
+        </a>
+    </div>
+
+    {% if tab == "students" %}
+    <!-- Student rankings -->
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="overflow-x-auto">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Rang</th>
+                        <th>N° Candidat</th>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Établissement</th>
+                        <th>Moyenne</th>
+                        <th>Mention</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in students_data %}
+                    <tr class="hover {% if s.average is not None and s.average >= active_exam.passing_grade %}{% else %}opacity-60{% endif %}">
+                        <td>
+                            {% if s.rank == 1 %}
+                            <span class="badge badge-warning badge-sm font-bold">1er</span>
+                            {% elif s.rank == 2 %}
+                            <span class="badge badge-ghost badge-sm font-bold">2e</span>
+                            {% elif s.rank == 3 %}
+                            <span class="badge badge-ghost badge-sm font-bold">3e</span>
+                            {% else %}
+                            <span class="text-sm">{{ s.rank }}e</span>
+                            {% endif %}
+                        </td>
+                        <td><span class="font-mono text-sm badge badge-ghost badge-sm">{{ s.candidate_number }}</span></td>
+                        <td class="font-medium">{{ s.last_name }}</td>
+                        <td>{{ s.first_name }}</td>
+                        <td class="text-sm">{{ s.school_name }}</td>
+                        <td>
+                            {% if s.average is not None %}
+                            <span class="font-semibold {% if s.average >= active_exam.passing_grade %}text-success{% else %}text-error{% endif %}">
+                                {{ s.average }}/20
+                            </span>
+                            {% else %}
+                            <span class="text-base-content/30">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if s.mention == "Excellent" %}
+                            <span class="badge badge-primary badge-sm">{{ s.mention }}</span>
+                            {% elif s.mention == "Très Bien" %}
+                            <span class="badge badge-secondary badge-sm">{{ s.mention }}</span>
+                            {% elif s.mention == "Bien" %}
+                            <span class="badge badge-accent badge-sm">{{ s.mention }}</span>
+                            {% elif s.mention == "Assez Bien" %}
+                            <span class="badge badge-info badge-sm">{{ s.mention }}</span>
+                            {% elif s.mention == "Passable" %}
+                            <span class="badge badge-success badge-sm">{{ s.mention }}</span>
+                            {% elif s.mention == "Ajourné" %}
+                            <span class="badge badge-error badge-sm">{{ s.mention }}</span>
+                            {% else %}
+                            <span class="text-base-content/30">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-12 text-base-content/40">
+                            <i data-lucide="trophy" class="w-10 h-10 mx-auto mb-2 opacity-30"></i>
+                            <p>Aucune donnée de classement disponible</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% elif tab == "schools" %}
+    <!-- School rankings -->
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="overflow-x-auto">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Rang</th>
+                        <th>Établissement</th>
+                        <th>Candidats</th>
+                        <th>Admis</th>
+                        <th>Taux de réussite</th>
+                        <th>Moyenne</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in ranked_schools %}
+                    <tr class="hover">
+                        <td>
+                            {% if s.rank == 1 %}
+                            <span class="badge badge-warning badge-sm font-bold">1er</span>
+                            {% else %}
+                            <span class="text-sm">{{ s.rank }}e</span>
+                            {% endif %}
+                        </td>
+                        <td class="font-medium">{{ s.school_name }}</td>
+                        <td>{{ s.total_students }}</td>
+                        <td>{{ s.passed }}</td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <progress class="progress progress-success w-20" value="{{ s.pass_rate }}" max="100"></progress>
+                                <span class="text-sm font-medium">{{ s.pass_rate }}%</span>
+                            </div>
+                        </td>
+                        <td><span class="font-semibold">{{ s.average }}/20</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-12 text-base-content/40">
+                            <p>Aucune donnée disponible</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

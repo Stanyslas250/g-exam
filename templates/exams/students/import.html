@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Importer des élèves — G-Exam{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div>
+        <a href="{% url 'exams:students_list' %}" class="btn btn-ghost btn-sm gap-1 mb-2">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Retour
+        </a>
+        <h2 class="text-2xl font-bold">Importer des élèves</h2>
+        <p class="text-base-content/60 text-sm mt-1">Importez une liste d'élèves depuis un fichier Excel</p>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-6">
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body">
+                <h3 class="card-title text-lg">Fichier Excel</h3>
+                <form method="post" enctype="multipart/form-data" class="space-y-4">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-medium">{{ field.label }}</span></label>
+                        {{ field }}
+                        {% if field.help_text %}<label class="label"><span class="label-text-alt text-base-content/50">{{ field.help_text }}</span></label>{% endif %}
+                        {% if field.errors %}<label class="label"><span class="label-text-alt text-error">{{ field.errors.0 }}</span></label>{% endif %}
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary gap-1">
+                        <i data-lucide="upload" class="w-4 h-4"></i> Importer
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body">
+                <h3 class="card-title text-lg">Format attendu</h3>
+                <p class="text-sm text-base-content/60 mb-3">Le fichier Excel doit contenir les colonnes suivantes :</p>
+                <div class="overflow-x-auto">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Colonne</th>
+                                <th>Obligatoire</th>
+                                <th>Exemple</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="font-medium">Nom</td><td><span class="badge badge-error badge-sm">Oui</span></td><td>DUPONT</td></tr>
+                            <tr><td class="font-medium">Prénom</td><td><span class="badge badge-error badge-sm">Oui</span></td><td>Jean</td></tr>
+                            <tr><td class="font-medium">Sexe</td><td><span class="badge badge-ghost badge-sm">Non</span></td><td>M / F</td></tr>
+                            <tr><td class="font-medium">Date de naissance</td><td><span class="badge badge-ghost badge-sm">Non</span></td><td>15/03/2005</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="alert alert-info text-sm mt-3">
+                    <i data-lucide="info" class="w-4 h-4"></i>
+                    <span>Les numéros de candidat seront générés automatiquement.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

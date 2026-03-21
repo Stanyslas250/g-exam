@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Exports — G-Exam{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div>
+        <h2 class="text-2xl font-bold">Exports</h2>
+        <p class="text-base-content/60 text-sm mt-1">Exportez les résultats en PDF ou Excel</p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Results PDF -->
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body p-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-lg bg-error/10 flex items-center justify-center shrink-0">
+                        <i data-lucide="file-text" class="w-5 h-5 text-error"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold">Résultats PDF</h3>
+                        <p class="text-xs text-base-content/50">Classement complet avec mentions</p>
+                    </div>
+                </div>
+                <a href="{% url 'exams:export_pdf' 'results' %}" class="btn btn-sm btn-outline btn-error gap-1 w-full">
+                    <i data-lucide="download" class="w-4 h-4"></i> Télécharger PDF
+                </a>
+            </div>
+        </div>
+
+        <!-- Results Excel -->
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body p-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center shrink-0">
+                        <i data-lucide="table" class="w-5 h-5 text-success"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold">Résultats Excel</h3>
+                        <p class="text-xs text-base-content/50">Données exploitables dans un tableur</p>
+                    </div>
+                </div>
+                <a href="{% url 'exams:export_excel' 'results' %}" class="btn btn-sm btn-outline btn-success gap-1 w-full">
+                    <i data-lucide="download" class="w-4 h-4"></i> Télécharger Excel
+                </a>
+            </div>
+        </div>
+
+        <!-- Rooms PDF -->
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body p-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-lg bg-info/10 flex items-center justify-center shrink-0">
+                        <i data-lucide="door-open" class="w-5 h-5 text-info"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold">Répartition salles PDF</h3>
+                        <p class="text-xs text-base-content/50">Plan d'affectation des candidats</p>
+                    </div>
+                </div>
+                <a href="{% url 'exams:export_pdf' 'rooms' %}" class="btn btn-sm btn-outline btn-info gap-1 w-full">
+                    <i data-lucide="download" class="w-4 h-4"></i> Télécharger PDF
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
