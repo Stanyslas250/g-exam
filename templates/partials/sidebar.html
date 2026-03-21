@@ -1,34 +1,34 @@
 {% load static %}
 <div class="drawer-side z-40">
-    <label for="sidebar-toggle" aria-label="close sidebar" class="drawer-overlay"></label>
-    <aside class="bg-base-100 w-72 min-h-full border-r border-base-300 flex flex-col">
+    <label for="sidebar-toggle" aria-label="Fermer le menu" class="drawer-overlay"></label>
+    <aside class="gexam-sidebar flex min-h-full w-72 flex-col border-r border-[var(--gexam-sidebar-border)] bg-[var(--gexam-sidebar)] text-slate-300 shadow-xl shadow-slate-950/20">
         <!-- Logo -->
-        <div class="p-5 border-b border-base-300">
-            <a href="{% url 'exams:dashboard' %}" class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                    <i data-lucide="graduation-cap" class="w-6 h-6 text-primary-content"></i>
+        <div class="border-b border-white/10 p-5">
+            <a href="{% url 'exams:dashboard' %}" class="flex items-center gap-3 rounded-xl p-1 transition-colors hover:bg-white/5">
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#073763] to-[#0b5394] text-white shadow-lg shadow-[#073763]/30">
+                    <i data-lucide="graduation-cap" class="h-6 w-6"></i>
                 </div>
-                <div>
-                    <h1 class="text-xl font-bold text-base-content">G-Exam</h1>
-                    <p class="text-xs text-base-content/50">Gestion d'examens</p>
+                <div class="min-w-0">
+                    <h1 class="truncate text-lg font-bold tracking-tight text-white">G-Exam</h1>
+                    <p class="text-xs font-medium text-slate-500">Gestion d'examens</p>
                 </div>
             </a>
         </div>
 
         {% if active_exam %}
-        <!-- Active exam badge -->
-        <div class="px-4 pt-4 pb-2">
-            <div class="bg-primary/10 rounded-xl p-3">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2 min-w-0">
-                        <i data-lucide="file-text" class="w-4 h-4 text-primary shrink-0"></i>
+        <!-- Examen actif -->
+        <div class="px-4 pb-2 pt-4">
+            <div class="rounded-xl border border-white/10 bg-slate-900/60 p-3 backdrop-blur-sm">
+                <div class="flex items-center justify-between gap-2">
+                    <div class="flex min-w-0 items-center gap-2">
+                        <i data-lucide="file-text" class="h-4 w-4 shrink-0 text-[#5fa3d9]"></i>
                         <div class="min-w-0">
-                            <p class="text-sm font-semibold text-primary truncate">{{ active_exam.name }}</p>
-                            <p class="text-xs text-base-content/50">{{ active_exam.code }}</p>
+                            <p class="truncate text-sm font-semibold text-white">{{ active_exam.name }}</p>
+                            <p class="text-xs text-slate-500">{{ active_exam.code }}</p>
                         </div>
                     </div>
-                    <a href="{% url 'exams:select_exam' %}" class="btn btn-ghost btn-xs" title="Changer d'examen">
-                        <i data-lucide="repeat" class="w-3.5 h-3.5"></i>
+                    <a href="{% url 'exams:select_exam' %}" class="btn btn-ghost btn-square btn-xs text-slate-400 hover:bg-white/10 hover:text-white" title="Changer d'examen">
+                        <i data-lucide="repeat" class="h-3.5 w-3.5"></i>
                     </a>
                 </div>
             </div>
@@ -36,98 +36,98 @@
         {% endif %}
 
         <!-- Navigation -->
-        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-            <p class="px-3 text-xs font-semibold text-base-content/40 uppercase tracking-wider mb-2">Principal</p>
+        <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+            <p class="mb-2 px-3 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-slate-500">Principal</p>
 
             <a href="{% url 'exams:dashboard' %}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {% if request.resolver_match.url_name == 'dashboard' %}active{% else %}text-base-content/70 hover:bg-base-200{% endif %}">
-                <i data-lucide="layout-dashboard" class="w-[18px] h-[18px]"></i>
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 text-sm {% if request.resolver_match.url_name == 'dashboard' %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
+                <i data-lucide="layout-dashboard" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>
                 Tableau de bord
             </a>
 
             <a href="{% url 'exams:exam_setup' %}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {% if request.resolver_match.url_name == 'exam_setup' %}active{% else %}text-base-content/70 hover:bg-base-200{% endif %}">
-                <i data-lucide="settings-2" class="w-[18px] h-[18px]"></i>
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 text-sm {% if request.resolver_match.url_name == 'exam_setup' %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
+                <i data-lucide="settings-2" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>
                 Configuration
             </a>
 
-            <p class="px-3 pt-4 text-xs font-semibold text-base-content/40 uppercase tracking-wider mb-2">Données</p>
+            <p class="mb-2 mt-5 px-3 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-slate-500">Données</p>
 
             <a href="{% url 'exams:schools_list' %}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {% if 'school' in request.resolver_match.url_name %}active{% else %}text-base-content/70 hover:bg-base-200{% endif %}">
-                <i data-lucide="building-2" class="w-[18px] h-[18px]"></i>
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 text-sm {% if 'school' in request.resolver_match.url_name %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
+                <i data-lucide="building-2" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>
                 Établissements
             </a>
 
             <a href="{% url 'exams:students_list' %}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {% if 'student' in request.resolver_match.url_name %}active{% else %}text-base-content/70 hover:bg-base-200{% endif %}">
-                <i data-lucide="users" class="w-[18px] h-[18px]"></i>
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 text-sm {% if 'student' in request.resolver_match.url_name %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
+                <i data-lucide="users" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>
                 Élèves
             </a>
 
             <a href="{% url 'exams:subjects_list' %}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {% if 'subject' in request.resolver_match.url_name %}active{% else %}text-base-content/70 hover:bg-base-200{% endif %}">
-                <i data-lucide="book-open" class="w-[18px] h-[18px]"></i>
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 text-sm {% if 'subject' in request.resolver_match.url_name %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
+                <i data-lucide="book-open" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>
                 Épreuves
             </a>
 
             <a href="{% url 'exams:scores' %}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {% if 'score' in request.resolver_match.url_name %}active{% else %}text-base-content/70 hover:bg-base-200{% endif %}">
-                <i data-lucide="pen-line" class="w-[18px] h-[18px]"></i>
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 text-sm {% if 'score' in request.resolver_match.url_name %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
+                <i data-lucide="pen-line" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>
                 Notes
             </a>
 
-            <p class="px-3 pt-4 text-xs font-semibold text-base-content/40 uppercase tracking-wider mb-2">Résultats</p>
+            <p class="mb-2 mt-5 px-3 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-slate-500">Résultats</p>
 
             <a href="{% url 'exams:rankings' %}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {% if request.resolver_match.url_name == 'rankings' %}active{% else %}text-base-content/70 hover:bg-base-200{% endif %}">
-                <i data-lucide="trophy" class="w-[18px] h-[18px]"></i>
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 text-sm {% if request.resolver_match.url_name == 'rankings' %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
+                <i data-lucide="trophy" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>
                 Classements
             </a>
 
             <a href="{% url 'exams:statistics' %}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {% if request.resolver_match.url_name == 'statistics' %}active{% else %}text-base-content/70 hover:bg-base-200{% endif %}">
-                <i data-lucide="bar-chart-3" class="w-[18px] h-[18px]"></i>
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 text-sm {% if request.resolver_match.url_name == 'statistics' %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
+                <i data-lucide="bar-chart-3" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>
                 Statistiques
             </a>
 
             <a href="{% url 'exams:rooms' %}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {% if 'room' in request.resolver_match.url_name %}active{% else %}text-base-content/70 hover:bg-base-200{% endif %}">
-                <i data-lucide="door-open" class="w-[18px] h-[18px]"></i>
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 text-sm {% if 'room' in request.resolver_match.url_name %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
+                <i data-lucide="door-open" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>
                 Salles
             </a>
 
-            <p class="px-3 pt-4 text-xs font-semibold text-base-content/40 uppercase tracking-wider mb-2">Outils</p>
+            <p class="mb-2 mt-5 px-3 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-slate-500">Outils</p>
 
             <a href="{% url 'exams:exports' %}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {% if request.resolver_match.url_name == 'exports' %}active{% else %}text-base-content/70 hover:bg-base-200{% endif %}">
-                <i data-lucide="download" class="w-[18px] h-[18px]"></i>
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 text-sm {% if request.resolver_match.url_name == 'exports' %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
+                <i data-lucide="download" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>
                 Exports
             </a>
 
             <a href="{% url 'exams:settings' %}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {% if request.resolver_match.url_name == 'settings' %}active{% else %}text-base-content/70 hover:bg-base-200{% endif %}">
-                <i data-lucide="sliders-horizontal" class="w-[18px] h-[18px]"></i>
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 text-sm {% if request.resolver_match.url_name == 'settings' %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
+                <i data-lucide="sliders-horizontal" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>
                 Paramètres
             </a>
         </nav>
 
-        <!-- User footer -->
-        <div class="p-4 border-t border-base-300">
+        <!-- Pied utilisateur -->
+        <div class="border-t border-white/10 p-4">
             <div class="flex items-center gap-3">
                 <div class="avatar placeholder">
-                    <div class="bg-primary text-primary-content rounded-full w-9">
-                        <span class="text-sm">{{ request.user.username|first|upper }}</span>
+                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#073763] to-[#0b5394] text-sm font-bold text-white shadow-md">
+                        <span>{{ request.user.username|first|upper }}</span>
                     </div>
                 </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium truncate">{{ request.user.username }}</p>
-                    <p class="text-xs text-base-content/50">Administrateur</p>
+                <div class="min-w-0 flex-1">
+                    <p class="truncate text-sm font-semibold text-white">{{ request.user.username }}</p>
+                    <p class="text-xs text-slate-500">Administrateur</p>
                 </div>
                 <form method="post" action="{% url 'exams:logout' %}">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-ghost btn-sm btn-square" title="Déconnexion">
-                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                    <button type="submit" class="btn btn-ghost btn-square btn-sm text-slate-400 hover:bg-white/10 hover:text-white" title="Déconnexion" aria-label="Déconnexion">
+                        <i data-lucide="log-out" class="h-4 w-4"></i>
                     </button>
                 </form>
             </div>

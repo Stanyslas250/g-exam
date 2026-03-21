@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
 {% block title %}Épreuves — G-Exam{% endblock %}
+{% block page_title %}Épreuves{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h2 class="text-2xl font-bold">Épreuves</h2>
-            <p class="text-base-content/60 text-sm mt-1">{{ subjects|length }} épreuve{{ subjects|length|pluralize }}</p>
+            <p class="mt-0.5 text-sm text-slate-600">{{ subjects|length }} épreuve{{ subjects|length|pluralize }}</p>
         </div>
         <a href="{% url 'exams:subject_create' %}" class="btn btn-primary btn-sm gap-1">
             <i data-lucide="plus" class="w-4 h-4"></i> Ajouter

@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
 {% block title %}Salles — G-Exam{% endblock %}
+{% block page_title %}Salles d'examen{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h2 class="text-2xl font-bold">Salles d'examen</h2>
-            <p class="text-base-content/60 text-sm mt-1">
+            <p class="mt-0.5 text-sm text-slate-600">
                 Capacité totale : {{ total_capacity }} places · {{ total_students }} élève{{ total_students|pluralize }}
             </p>
         </div>

@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
 {% block title %}{% if exam %}Modifier{% else %}Créer{% endif %} un examen — G-Exam{% endblock %}
+{% block page_title %}{% if exam %}Modifier l'examen{% else %}Créer un nouvel examen{% endif %}{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
     <div>
-        <h2 class="text-2xl font-bold">{% if exam %}Modifier l'examen{% else %}Créer un nouvel examen{% endif %}</h2>
-        <p class="text-base-content/60 text-sm mt-1">Renseignez les informations de l'examen</p>
+        <p class="mt-0.5 text-sm text-slate-600">Renseignez les informations de l'examen</p>
     </div>
 
     <div class="card bg-base-100 shadow-sm border border-base-300">

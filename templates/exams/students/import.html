@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}Importer des élèves — G-Exam{% endblock %}
+{% block page_title %}Importer des élèves{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
@@ -8,8 +9,7 @@
         <a href="{% url 'exams:students_list' %}" class="btn btn-ghost btn-sm gap-1 mb-2">
             <i data-lucide="arrow-left" class="w-4 h-4"></i> Retour
         </a>
-        <h2 class="text-2xl font-bold">Importer des élèves</h2>
-        <p class="text-base-content/60 text-sm mt-1">Importez une liste d'élèves depuis un fichier Excel</p>
+        <p class="mt-0.5 text-sm text-slate-600">Importez une liste d'élèves depuis un fichier Excel</p>
     </div>
 
     <div class="grid lg:grid-cols-2 gap-6">

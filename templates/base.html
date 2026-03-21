@@ -1,35 +1,47 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="fr" data-theme="emerald">
+<html lang="fr" data-theme="corporate">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}G-Exam{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <style>
-        .sidebar-link { transition: all 0.15s ease; }
-        .sidebar-link:hover { transform: translateX(2px); }
-        .sidebar-link.active { background: oklch(var(--p) / 0.12); color: oklch(var(--p)); font-weight: 600; }
-        .stat-card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
-        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px -5px rgba(0,0,0,0.1); }
-        .fade-in { animation: fadeIn 0.3s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-base-200 min-h-screen">
+<body class="gexam-body min-h-screen antialiased text-slate-800">
 
 <div class="drawer lg:drawer-open">
     <input id="sidebar-toggle" type="checkbox" class="drawer-toggle" />
 
     <!-- Main content -->
     <div class="drawer-content flex flex-col">
-        {% include "partials/header.html" %}
+        <header class="gexam-header navbar sticky top-0 z-30 min-h-[3.75rem] border-b border-slate-200/80 bg-white/80 px-4 backdrop-blur-md lg:px-8">
+            <div class="flex-none lg:hidden">
+                <label for="sidebar-toggle" class="btn btn-square btn-ghost border border-slate-200/80 text-slate-600 hover:border-slate-300 hover:bg-slate-50" aria-label="Ouvrir le menu">
+                    <i data-lucide="menu" class="h-5 w-5"></i>
+                </label>
+            </div>
+            <div class="flex-1 min-w-0">
+                <h2 class="truncate text-lg font-semibold tracking-tight text-slate-900">{% block page_title %}G-Exam{% endblock %}</h2>
+            </div>
+            <div class="flex shrink-0 items-center gap-2">
+                {% if active_exam %}
+                <div class="badge hidden gap-1 border border-[#073763]/25 bg-[#073763]/5 px-3 py-3 text-[#073763] sm:flex">
+                    <i data-lucide="file-text" class="h-3.5 w-3.5"></i>
+                    <span class="font-mono text-xs font-semibold">{{ active_exam.code }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </header>
 
-        <main class="flex-1 p-4 lg:p-6 fade-in">
+        <main class="flex-1 p-4 md:p-6 lg:p-8 max-w-[1600px] w-full mx-auto fade-in">
             {% if messages %}
             <div class="mb-4 space-y-2">
                 {% for message in messages %}

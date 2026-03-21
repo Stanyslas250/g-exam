@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
 {% block title %}Établissements — G-Exam{% endblock %}
+{% block page_title %}Établissements{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h2 class="text-2xl font-bold">Établissements</h2>
-            <p class="text-base-content/60 text-sm mt-1">{{ schools|length }} établissement{{ schools|length|pluralize }}</p>
+            <p class="mt-0.5 text-sm text-slate-600">{{ schools|length }} établissement{{ schools|length|pluralize }}</p>
         </div>
         <a href="{% url 'exams:school_create' %}" class="btn btn-primary btn-sm gap-1">
             <i data-lucide="plus" class="w-4 h-4"></i>

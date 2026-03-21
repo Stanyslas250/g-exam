@@ -1,63 +1,72 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="fr" data-theme="emerald">
+<html lang="fr" data-theme="corporate">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion — G-Exam</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body class="bg-base-200 min-h-screen flex items-center justify-center p-4">
+<body class="gexam-login-body flex min-h-screen items-center justify-center p-4 antialiased">
 
-<div class="w-full max-w-md">
-    <div class="text-center mb-8">
-        <div class="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center mx-auto mb-4">
-            <i data-lucide="graduation-cap" class="w-9 h-9 text-primary-content"></i>
+<div class="relative w-full max-w-md">
+    <div class="mb-10 text-center">
+        <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#073763] to-[#0b5394] text-white shadow-xl shadow-[#073763]/35">
+            <i data-lucide="graduation-cap" class="h-9 w-9"></i>
         </div>
-        <h1 class="text-3xl font-bold text-base-content">G-Exam</h1>
-        <p class="text-base-content/60 mt-1">Système de gestion d'examens</p>
+        <h1 class="text-3xl font-bold tracking-tight text-slate-900">G-Exam</h1>
+        <p class="mt-2 text-sm text-slate-600">Système de gestion d'examens scolaires</p>
     </div>
 
-    <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-            <h2 class="card-title text-lg justify-center mb-2">Connexion</h2>
+    <div class="rounded-2xl border border-slate-200/80 bg-white/90 p-1 shadow-2xl shadow-slate-900/10 backdrop-blur-md">
+        <div class="card border-0 bg-transparent shadow-none">
+            <div class="card-body gap-4 px-6 pb-8 pt-6">
+                <div class="text-center">
+                    <h2 class="text-lg font-semibold text-slate-900">Connexion</h2>
+                    <p class="mt-1 text-xs text-slate-500">Accès réservé aux administrateurs</p>
+                </div>
 
-            {% if form.errors %}
-            <div class="alert alert-error text-sm">
-                <i data-lucide="alert-circle" class="w-4 h-4"></i>
-                <span>Nom d'utilisateur ou mot de passe incorrect.</span>
+                {% if form.errors %}
+                <div class="alert border border-error/30 bg-error/10 text-error">
+                    <i data-lucide="alert-circle" class="h-4 w-4 shrink-0"></i>
+                    <span class="text-sm">Nom d'utilisateur ou mot de passe incorrect.</span>
+                </div>
+                {% endif %}
+
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+                    <div class="form-control">
+                        <label class="label pb-1 pt-0"><span class="label-text text-sm font-semibold text-slate-700">Nom d'utilisateur</span></label>
+                        <div class="relative">
+                            <input type="text" name="username" class="input input-bordered h-12 w-full rounded-xl border-slate-200 bg-white pl-11 text-slate-900 placeholder:text-slate-400 focus:border-[#0b5394]"
+                                   placeholder="admin" required autofocus value="{{ form.username.value|default:'' }}">
+                            <i data-lucide="user" class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
+                        </div>
+                    </div>
+                    <div class="form-control">
+                        <label class="label pb-1 pt-0"><span class="label-text text-sm font-semibold text-slate-700">Mot de passe</span></label>
+                        <div class="relative">
+                            <input type="password" name="password" class="input input-bordered h-12 w-full rounded-xl border-slate-200 bg-white pl-11 text-slate-900 placeholder:text-slate-400 focus:border-[#0b5394]"
+                                   placeholder="••••••••" required>
+                            <i data-lucide="lock" class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-2 h-12 w-full gap-2 rounded-xl border-0 text-base font-semibold">
+                        <i data-lucide="log-in" class="h-4 w-4"></i>
+                        Se connecter
+                    </button>
+                </form>
             </div>
-            {% endif %}
-
-            <form method="post" class="space-y-4">
-                {% csrf_token %}
-                <div class="form-control">
-                    <label class="label"><span class="label-text font-medium">Nom d'utilisateur</span></label>
-                    <div class="relative">
-                        <input type="text" name="username" class="input input-bordered w-full pl-10"
-                               placeholder="admin" required autofocus value="{{ form.username.value|default:'' }}">
-                        <i data-lucide="user" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></i>
-                    </div>
-                </div>
-                <div class="form-control">
-                    <label class="label"><span class="label-text font-medium">Mot de passe</span></label>
-                    <div class="relative">
-                        <input type="password" name="password" class="input input-bordered w-full pl-10"
-                               placeholder="••••••••" required>
-                        <i data-lucide="lock" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></i>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary w-full">
-                    <i data-lucide="log-in" class="w-4 h-4"></i>
-                    Se connecter
-                </button>
-            </form>
         </div>
     </div>
 
-    <p class="text-center text-xs text-base-content/40 mt-6">G-Exam &copy; {{ year|default:"2025" }} — Gestion d'examens scolaires</p>
+    <p class="mt-8 text-center text-xs text-slate-500">G-Exam &copy; {{ year|default:"2025" }} — Gestion d'examens scolaires</p>
 </div>
 
 <script>lucide.createIcons();</script>

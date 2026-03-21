@@ -1,29 +1,33 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="fr" data-theme="emerald">
+<html lang="fr" data-theme="corporate">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sélection d'examen — G-Exam</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body class="bg-base-200 min-h-screen">
+<body class="gexam-login-body min-h-screen antialiased">
 
-<div class="container mx-auto px-4 py-8 max-w-4xl">
+<div class="container mx-auto max-w-4xl px-4 py-10">
     <!-- Header -->
-    <div class="text-center mb-8">
-        <div class="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mx-auto mb-4">
-            <i data-lucide="graduation-cap" class="w-8 h-8 text-primary-content"></i>
+    <div class="mb-10 text-center">
+        <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#073763] to-[#0b5394] text-white shadow-xl shadow-[#073763]/30">
+            <i data-lucide="graduation-cap" class="h-9 w-9"></i>
         </div>
-        <h1 class="text-3xl font-bold">G-Exam</h1>
-        <p class="text-base-content/60 mt-1">Sélectionnez un examen pour commencer</p>
+        <h1 class="text-3xl font-bold tracking-tight text-slate-900">G-Exam</h1>
+        <p class="mt-2 text-sm text-slate-600">Sélectionnez un examen pour commencer</p>
     </div>
 
-    <div class="grid lg:grid-cols-2 gap-6">
+    <div class="grid gap-6 lg:grid-cols-2">
         <!-- Enter code -->
-        <div class="card bg-base-100 shadow-xl">
+        <div class="card rounded-2xl border border-slate-200/90 bg-white/95 shadow-xl shadow-slate-900/10">
             <div class="card-body">
                 <h2 class="card-title gap-2">
                     <i data-lucide="key-round" class="w-5 h-5 text-primary"></i>
@@ -51,19 +55,19 @@
         </div>
 
         <!-- Create new -->
-        <div class="card bg-base-100 shadow-xl">
+        <div class="card rounded-2xl border border-slate-200/90 bg-white/95 shadow-xl shadow-slate-900/10">
             <div class="card-body">
                 <h2 class="card-title gap-2">
                     <i data-lucide="plus-circle" class="w-5 h-5 text-secondary"></i>
                     Nouvel examen
                 </h2>
                 <p class="text-sm text-base-content/60 mb-4">Créez ou importez un examen</p>
-                <a href="{% url 'exams:exam_create' %}" class="btn btn-secondary w-full">
+                <a href="{% url 'exams:exam_create' %}" class="btn w-full border-[#0b5394]/40 bg-[#0b5394]/10 text-[#073763] hover:border-[#0b5394] hover:bg-[#0b5394]/20">
                     <i data-lucide="plus" class="w-4 h-4"></i>
                     Créer un examen
                 </a>
                 <div class="divider text-xs">OU</div>
-                <a href="{% url 'exams:exam_import' %}" class="btn btn-outline btn-accent w-full gap-1">
+                <a href="{% url 'exams:exam_import' %}" class="btn btn-outline w-full gap-1 border-slate-300 text-slate-700 hover:border-[#0b5394] hover:bg-slate-50">
                     <i data-lucide="file-up" class="w-4 h-4"></i>
                     Importer depuis Excel
                 </a>
@@ -73,7 +77,7 @@
 
     {% if exams %}
     <!-- Existing exams list -->
-    <div class="card bg-base-100 shadow-xl mt-6">
+    <div class="card mt-6 rounded-2xl border border-slate-200/90 bg-white/95 shadow-xl shadow-slate-900/10">
         <div class="card-body">
             <h2 class="card-title gap-2 mb-4">
                 <i data-lucide="list" class="w-5 h-5 text-primary"></i>
@@ -130,7 +134,7 @@
     <div class="text-center mt-6">
         <form method="post" action="{% url 'exams:logout' %}">
             {% csrf_token %}
-            <button type="submit" class="btn btn-ghost btn-sm gap-1 text-base-content/50">
+            <button type="submit" class="btn btn-ghost btn-sm gap-1 text-slate-500 hover:bg-slate-200/50 hover:text-slate-800">
                 <i data-lucide="log-out" class="w-4 h-4"></i>
                 Déconnexion
             </button>

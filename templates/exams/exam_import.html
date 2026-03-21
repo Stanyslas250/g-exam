@@ -1,29 +1,33 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="fr" data-theme="emerald">
+<html lang="fr" data-theme="corporate">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Importer un examen — G-Exam</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body class="bg-base-200 min-h-screen">
+<body class="gexam-login-body min-h-screen antialiased">
 
-<div class="container mx-auto px-4 py-8 max-w-4xl">
+<div class="container mx-auto max-w-4xl px-4 py-10">
     <div class="mb-6">
-        <a href="{% url 'exams:select_exam' %}" class="btn btn-ghost btn-sm gap-1">
+        <a href="{% url 'exams:select_exam' %}" class="btn btn-ghost btn-sm gap-1 text-slate-600 hover:bg-slate-200/50">
             <i data-lucide="arrow-left" class="w-4 h-4"></i> Retour
         </a>
     </div>
 
-    <div class="text-center mb-8">
-        <div class="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mx-auto mb-4">
-            <i data-lucide="file-up" class="w-8 h-8 text-primary-content"></i>
+    <div class="mb-10 text-center">
+        <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#073763] to-[#0b5394] text-white shadow-xl shadow-[#073763]/30">
+            <i data-lucide="file-up" class="h-9 w-9"></i>
         </div>
-        <h1 class="text-2xl font-bold">Importer un examen</h1>
-        <p class="text-base-content/60 mt-1">Importez un examen depuis un backup JSON ou un fichier Excel</p>
+        <h1 class="text-3xl font-bold tracking-tight text-slate-900">Importer un examen</h1>
+        <p class="mt-2 text-sm text-slate-600">Importez un examen depuis un backup JSON ou un fichier Excel</p>
     </div>
 
     {% if messages %}
@@ -38,10 +42,10 @@
 
     <div class="grid lg:grid-cols-2 gap-6">
         <!-- Upload form -->
-        <div class="card bg-base-100 shadow-xl">
+        <div class="card rounded-2xl border border-slate-200/90 bg-white/95 shadow-xl shadow-slate-900/10">
             <div class="card-body">
                 <h2 class="card-title gap-2 text-lg">
-                    <i data-lucide="upload" class="w-5 h-5 text-primary"></i>
+                    <i data-lucide="upload" class="w-5 h-5 text-[#073763]"></i>
                     Fichier et paramètres
                 </h2>
                 <form method="post" enctype="multipart/form-data" class="space-y-4 mt-2">
@@ -81,7 +85,7 @@
 
         <!-- Instructions -->
         <div class="space-y-4">
-            <div class="card bg-base-100 shadow-xl">
+            <div class="card rounded-2xl border border-slate-200/90 bg-white/95 shadow-xl shadow-slate-900/10">
                 <div class="card-body">
                     <h2 class="card-title gap-2 text-lg">
                         <i data-lucide="info" class="w-5 h-5 text-info"></i>
@@ -133,7 +137,7 @@
             </div>
 
             <!-- JSON format -->
-            <div class="card bg-base-100 shadow-xl">
+            <div class="card rounded-2xl border border-slate-200/90 bg-white/95 shadow-xl shadow-slate-900/10">
                 <div class="card-body">
                     <h2 class="card-title gap-2 text-lg">
                         <i data-lucide="braces" class="w-5 h-5 text-warning"></i>

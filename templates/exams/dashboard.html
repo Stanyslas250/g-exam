@@ -2,14 +2,14 @@
 {% load humanize %}
 
 {% block title %}Tableau de bord — G-Exam{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
     <!-- Title -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h2 class="text-2xl font-bold">Tableau de bord</h2>
-            <p class="text-base-content/60 text-sm mt-1">Vue d'ensemble de l'examen <strong>{{ exam.name }}</strong> ({{ exam.year }})</p>
+            <p class="mt-0.5 text-sm text-slate-600">Vue d'ensemble de l'examen <strong class="font-semibold text-slate-800">{{ exam.name }}</strong> ({{ exam.year }})</p>
         </div>
         {% if exam.is_locked %}
         <div class="badge badge-warning gap-1 py-3 px-4">

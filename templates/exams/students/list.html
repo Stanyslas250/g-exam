@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
 {% block title %}Élèves — G-Exam{% endblock %}
+{% block page_title %}Élèves{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h2 class="text-2xl font-bold">Élèves</h2>
-            <p class="text-base-content/60 text-sm mt-1">{{ students|length }} élève{{ students|length|pluralize }}</p>
+            <p class="mt-0.5 text-sm text-slate-600">{{ students|length }} élève{{ students|length|pluralize }}</p>
         </div>
         <div class="flex gap-2">
             <a href="{% url 'exams:students_import' %}" class="btn btn-outline btn-sm gap-1">
