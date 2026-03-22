@@ -10,6 +10,11 @@
             <p class="mt-0.5 text-sm text-slate-600">Tableau de bord de saisie : progression globale et accès par épreuve ou par élève.</p>
         </div>
         <div class="flex flex-wrap gap-2">
+            {% if active_exam %}
+            <a href="{% url 'exams:exam_correction_qr_png' %}" target="_blank" rel="noopener" class="btn btn-outline btn-sm gap-1 border-[#0b5394]/40 text-[#073763]" download>
+                <i data-lucide="qr-code" class="h-4 w-4"></i> QR correcteurs
+            </a>
+            {% endif %}
             {% if first_student %}
             <a href="{% url 'exams:scores_by_student' first_student.pk %}" class="btn btn-outline btn-sm gap-1 border-[#0b5394]/40 text-[#073763]">
                 <i data-lucide="user" class="h-4 w-4"></i> Saisie par élève

@@ -1,3 +1,41 @@
+[project]
+name = "g-exam"
+version = "1.0.0"
+description = "Application Django de gestion d'examens scolaires"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "django>=5.1,<6",
+    "psycopg2-binary>=2.9",
+    "openpyxl>=3.1",
+    "reportlab>=4.0",
+    "django-environ>=0.11",
+    "pillow>=10.0",
+    "qrcode[pil]>=8.0,<9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "django-debug-toolbar>=4.0,<6",
+]
+
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+# Projet applicatif Django : pas de package Python à installer en editable.
+[tool.hatch.build.targets.wheel]
+packages = []
+
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = [
+    "django-debug-toolbar>=4.0,<6",
+]
+
+# Conservé pour les équipes qui utilisent encore Poetry (`poetry install`).
 [tool.poetry]
 name = "g-exam"
 version = "1.0.0"
@@ -13,10 +51,7 @@ openpyxl = "^3.1"
 reportlab = "^4.0"
 django-environ = "^0.11"
 Pillow = "^10.0"
+qrcode = {extras = ["pil"], version = "^8.0"}
 
 [tool.poetry.group.dev.dependencies]
 django-debug-toolbar = "^4.0"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"

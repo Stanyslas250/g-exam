@@ -1,0 +1,28 @@
+{% extends "correction/base.html" %}
+{% block title %}Connexion correcteur — {{ exam.name }} — G-Exam{% endblock %}
+
+{% block content %}
+<div class="card border border-base-300 bg-base-100 shadow-sm">
+    <div class="card-body space-y-4">
+        <h1 class="text-xl font-semibold text-[#073763]">Connexion correcteur</h1>
+        <p class="text-sm text-slate-600">Entrez votre identifiant (code) pour accéder aux épreuves qui vous sont assignées.</p>
+        {% if locked %}
+        <div class="alert alert-warning text-sm">Cet examen est verrouillé. Contactez l’administration.</div>
+        {% else %}
+        <form method="post" class="space-y-3">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-control">
+                <label class="label py-1" for="{{ field.id_for_label }}"><span class="label-text text-sm font-medium">{{ field.label }}</span></label>
+                {{ field }}
+                {% if field.errors %}<p class="text-error text-xs mt-1">{{ field.errors.0 }}</p>{% endif %}
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary w-full gap-2 border-0 bg-[#073763] hover:bg-[#0b5394]">
+                <i data-lucide="key-round" class="h-4 w-4"></i> Continuer
+            </button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,5 +1,25 @@
 from django.contrib import admin
-from .models import Exam, School, Student, Subject, Score, Room, RoomAssignment
+
+from .models import (
+    Exam,
+    School,
+    Student,
+    Subject,
+    Score,
+    Room,
+    RoomAssignment,
+    Teacher,
+    SubjectAssignment,
+    ScoreHistory,
+    Harmonization,
+)
+
+
+class SubjectAssignmentInline(admin.TabularInline):
+    model = SubjectAssignment
+    extra = 0
+    fields = ("subject", "is_lead_corrector")
+    autocomplete_fields = ("subject",)
 
 
 @admin.register(Exam)
@@ -35,12 +55,32 @@ class StudentAdmin(admin.ModelAdmin):
 class SubjectAdmin(admin.ModelAdmin):
     list_display = ("name", "coefficient", "max_score", "exam")
     list_filter = ("exam",)
+    search_fields = ("name",)
+
+
+class ScoreHistoryInline(admin.TabularInline):
+    model = ScoreHistory
+    extra = 0
+    readonly_fields = (
+        "old_value",
+        "new_value",
+        "reason",
+        "comment",
+        "changed_by_teacher",
+        "changed_by_admin",
+        "created_at",
+    )
+    can_delete = False
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(Score)
 class ScoreAdmin(admin.ModelAdmin):
     list_display = ("student", "subject", "value", "updated_at")
     list_filter = ("subject",)
+    inlines = [ScoreHistoryInline]
 
 
 @admin.register(Room)
@@ -53,3 +93,46 @@ class RoomAdmin(admin.ModelAdmin):
 class RoomAssignmentAdmin(admin.ModelAdmin):
     list_display = ("student", "room", "seat_number")
     list_filter = ("room",)
+
+
+@admin.register(Teacher)
+class TeacherAdmin(admin.ModelAdmin):
+    list_display = ("last_name", "first_name", "code", "email", "is_active", "created_at")
+    list_filter = ("is_active",)
+    search_fields = ("last_name", "first_name", "code", "email")
+    inlines = [SubjectAssignmentInline]
+
+
+@admin.register(SubjectAssignment)
+class SubjectAssignmentAdmin(admin.ModelAdmin):
+    list_display = ("teacher", "subject", "exam", "is_lead_corrector")
+    list_filter = ("exam", "is_lead_corrector")
+    search_fields = ("teacher__last_name", "teacher__code", "subject__name")
+    autocomplete_fields = ("teacher", "subject", "exam")
+
+
+@admin.register(ScoreHistory)
+class ScoreHistoryAdmin(admin.ModelAdmin):
+    list_display = ("score", "old_value", "new_value", "reason", "created_at")
+    list_filter = ("reason",)
+    search_fields = ("comment", "score__student__candidate_number")
+    readonly_fields = (
+        "score",
+        "old_value",
+        "new_value",
+        "reason",
+        "comment",
+        "changed_by_teacher",
+        "changed_by_admin",
+        "created_at",
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(Harmonization)
+class HarmonizationAdmin(admin.ModelAdmin):
+    list_display = ("subject", "exam", "adjustment_type", "value", "is_applied", "applied_at", "applied_by")
+    list_filter = ("is_applied", "adjustment_type", "exam")
+    readonly_fields = ("applied_at",)

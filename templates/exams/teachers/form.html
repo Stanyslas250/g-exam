@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} — G-Exam{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card bg-base-100 shadow-sm border border-base-300 max-w-xl">
+    <div class="card-body">
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-control">
+                <label class="label" for="{{ field.id_for_label }}"><span class="label-text font-medium">{{ field.label }}</span></label>
+                {{ field }}
+                {% if field.errors %}<p class="text-error text-sm mt-1">{{ field.errors.0 }}</p>{% endif %}
+            </div>
+            {% endfor %}
+            <div class="flex gap-2 pt-2">
+                <button type="submit" class="btn btn-primary gap-1"><i data-lucide="save" class="w-4 h-4"></i> Enregistrer</button>
+                <a href="{% url 'exams:teachers_list' %}" class="btn btn-ghost">Annuler</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

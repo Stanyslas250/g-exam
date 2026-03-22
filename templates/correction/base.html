@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr" data-theme="corporate">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Correction — G-Exam{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="gexam-body min-h-screen antialiased bg-slate-50 text-slate-800">
+    <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur-md">
+        <div class="mx-auto flex max-w-lg items-center justify-between gap-2">
+            <div class="min-w-0">
+                <p class="truncate text-xs font-semibold uppercase tracking-wide text-[#073763]">G-Exam · Correcteur</p>
+                {% if exam %}
+                <p class="truncate text-sm font-medium text-slate-800">{{ exam.name }}</p>
+                {% endif %}
+            </div>
+            {% if teacher %}
+            <div class="flex shrink-0 items-center gap-2">
+                <span class="hidden text-xs text-slate-500 sm:inline">{{ teacher.first_name }} {{ teacher.last_name }}</span>
+                <a href="{% url 'exams:corrector_logout' %}" class="btn btn-ghost btn-xs gap-1" aria-label="Déconnexion">
+                    <i data-lucide="log-out" class="h-4 w-4"></i>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+
+    <main class="mx-auto max-w-lg px-4 py-6">
+        {% if messages %}
+        <div class="mb-4 space-y-2">
+            {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-error{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %} text-sm shadow-sm">
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+    <script>lucide.createIcons();</script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

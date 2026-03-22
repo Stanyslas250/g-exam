@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Enseignants — G-Exam{% endblock %}
+{% block page_title %}Enseignants / correcteurs{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <p class="text-sm text-slate-600">Assignations pour l’examen actif : <strong>{{ exam.name }}</strong></p>
+        <a href="{% url 'exams:teacher_create' %}" class="btn btn-primary btn-sm gap-1">
+            <i data-lucide="user-plus" class="w-4 h-4"></i> Ajouter
+        </a>
+    </div>
+
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="overflow-x-auto">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Code</th>
+                        <th>Épreuves (examen actif)</th>
+                        <th>Statut</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    {% with t=row.teacher %}
+                    <tr class="hover">
+                        <td class="font-medium">{{ t.last_name }} {{ t.first_name }}</td>
+                        <td><span class="font-mono text-xs badge badge-ghost">{{ t.code }}</span></td>
+                        <td class="max-w-xs truncate text-sm" title="{{ row.subjects_label }}">{{ row.subjects_label }}</td>
+                        <td>
+                            {% if t.is_active %}
+                            <span class="badge badge-success badge-sm">Actif</span>
+                            {% else %}
+                            <span class="badge badge-ghost badge-sm">Inactif</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-right">
+                            <div class="flex flex-wrap justify-end gap-1">
+                                <a href="{% url 'exams:teacher_assign' t.pk %}" class="btn btn-ghost btn-xs gap-1">Assigner</a>
+                                <a href="{% url 'exams:teacher_edit' t.pk %}" class="btn btn-ghost btn-xs"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></a>
+                                <a href="{% url 'exams:teacher_delete' t.pk %}" class="btn btn-ghost btn-xs text-error"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endwith %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-10 text-base-content/50">Aucun enseignant. Créez-en un et assignez-le aux épreuves.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

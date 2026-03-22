@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Assigner — {{ teacher.last_name }} — G-Exam{% endblock %}
+{% block page_title %}Assignation des épreuves{% endblock %}
+
+{% block content %}
+<div class="max-w-xl space-y-4">
+    <p class="text-sm text-slate-600">
+        <strong>{{ teacher.last_name }} {{ teacher.first_name }}</strong> — examen <strong>{{ exam.name }}</strong>
+    </p>
+    <form method="post" class="card bg-base-100 shadow-sm border border-base-300">
+        {% csrf_token %}
+        <div class="card-body space-y-3">
+            {% if subjects %}
+            <p class="text-sm text-slate-600">Cochez les épreuves que ce correcteur peut saisir.</p>
+            <div class="space-y-2 max-h-80 overflow-y-auto">
+                {% for s in subjects %}
+                <label class="flex cursor-pointer items-center gap-3 rounded-lg border border-base-200 p-3 hover:bg-base-200/50">
+                    <input type="checkbox" name="subject_ids" value="{{ s.id }}" class="checkbox checkbox-primary"
+                           {% if s.id in existing %}checked{% endif %}>
+                    <span class="font-medium">{{ s.name }}</span>
+                    <span class="text-xs text-base-content/60">max {{ s.max_score }}</span>
+                </label>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-sm text-warning">Aucune épreuve pour cet examen. Ajoutez des épreuves d’abord.</p>
+            {% endif %}
+            <div class="flex gap-2 pt-2">
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                <a href="{% url 'exams:teachers_list' %}" class="btn btn-ghost">Retour</a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

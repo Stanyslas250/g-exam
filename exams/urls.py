@@ -1,6 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
+from . import grading_views
 
 app_name = "exams"
 
@@ -8,6 +9,16 @@ urlpatterns = [
     # Auth
     path("login/", auth_views.LoginView.as_view(template_name="registration/login.html"), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+
+    # Interface correcteur (hors session examen admin)
+    path("correction/logout/", grading_views.corrector_logout_view, name="corrector_logout"),
+    path("correction/<str:exam_code>/", grading_views.corrector_login_view, name="corrector_login"),
+    path("correction/<str:exam_code>/subjects/", grading_views.corrector_subjects_view, name="corrector_subjects"),
+    path(
+        "correction/<str:exam_code>/subject/<int:subject_id>/",
+        grading_views.corrector_grade_entry_view,
+        name="corrector_grade",
+    ),
 
     # Exam selection
     path("select-exam/", views.select_exam_view, name="select_exam"),
@@ -47,6 +58,16 @@ urlpatterns = [
     path("scores/", views.scores_view, name="scores"),
     path("scores/student/<int:student_id>/", views.scores_by_student_view, name="scores_by_student"),
     path("scores/subject/<int:subject_id>/", views.scores_by_subject_view, name="scores_by_subject"),
+    path("scores/subject/<int:subject_id>/harmonize/", grading_views.harmonization_view, name="scores_harmonize"),
+    path("scores/<int:score_id>/history/", grading_views.score_history_view, name="score_history"),
+    path("scores/qr-correction.png", grading_views.exam_correction_qr_png_view, name="exam_correction_qr_png"),
+
+    # Enseignants / correcteurs
+    path("teachers/", grading_views.teachers_list_view, name="teachers_list"),
+    path("teachers/create/", grading_views.teacher_create_view, name="teacher_create"),
+    path("teachers/<int:pk>/edit/", grading_views.teacher_edit_view, name="teacher_edit"),
+    path("teachers/<int:pk>/delete/", grading_views.teacher_delete_view, name="teacher_delete"),
+    path("teachers/<int:pk>/assign/", grading_views.teacher_assign_view, name="teacher_assign"),
 
     # Rankings
     path("rankings/", views.rankings_view, name="rankings"),

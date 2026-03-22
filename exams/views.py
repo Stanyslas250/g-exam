@@ -12,11 +12,12 @@ from django.db.models import Avg, Count, Q
 from django.views.decorators.http import require_POST
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
-from .models import Exam, School, Student, Subject, Score, Room, RoomAssignment
+from .models import Exam, School, Student, Subject, Score, Room, RoomAssignment, ScoreHistory
 from .forms import (
     ExamForm, SchoolForm, StudentForm, SubjectForm, ScoreForm,
     RoomForm, ExcelImportForm, ExamCodeForm,
 )
+from .services.score_history import log_score_change
 from .services.calculations import calculate_student_average, get_mention
 from .services.rankings import rank_students, rank_schools
 from .services.statistics import compute_global_stats, compute_distribution, compute_subject_stats
@@ -841,10 +842,9 @@ def scores_by_subject_view(request, subject_id):
     if school_raw.isdigit():
         students = students.filter(school_id=int(school_raw))
 
-    existing_scores = {
-        s.student_id: s.value
-        for s in Score.objects.filter(subject=subject, student__exam=exam)
-    }
+    score_rows = list(Score.objects.filter(subject=subject, student__exam=exam))
+    existing_scores = {s.student_id: s.value for s in score_rows}
+    score_obj_by_student = {s.student_id: s for s in score_rows}
 
     if empty_only:
         students = students.exclude(id__in=list(existing_scores.keys()))
@@ -876,11 +876,31 @@ def scores_by_subject_view(request, subject_id):
             raw = request.POST.get(f"score_{student.id}")
             val = _parse_score_post_value(raw)
             if val is not None and 0 <= val <= max_sc:
-                Score.objects.update_or_create(
+                prev = Score.objects.filter(student=student, subject=subject).first()
+                old_val = float(prev.value) if prev else None
+                obj, created = Score.objects.update_or_create(
                     student=student,
                     subject=subject,
                     defaults={"value": val},
                 )
+                if created:
+                    log_score_change(
+                        obj,
+                        old_value=None,
+                        new_value=val,
+                        reason=ScoreHistory.REASON_INITIAL,
+                        comment="Saisie administrateur (tableau)",
+                        admin_user=request.user,
+                    )
+                elif old_val is not None and old_val != val:
+                    log_score_change(
+                        obj,
+                        old_value=old_val,
+                        new_value=val,
+                        reason=ScoreHistory.REASON_CORRECTION,
+                        comment="Modification administrateur (tableau)",
+                        admin_user=request.user,
+                    )
                 updated += 1
         messages.success(request, f"{updated} note(s) enregistrée(s) pour « {subject.name} » (page {page_obj.number}).")
         from urllib.parse import urlencode
@@ -896,9 +916,11 @@ def scores_by_subject_view(request, subject_id):
 
     students_with_scores = []
     for student in page_obj.object_list:
+        sco = score_obj_by_student.get(student.id)
         students_with_scores.append({
             "student": student,
             "score": existing_scores.get(student.id, ""),
+            "score_obj": sco,
         })
 
     schools = School.objects.filter(students__exam=exam).distinct().order_by("name")
@@ -956,26 +978,49 @@ def scores_by_student_view(request, student_id):
             val = _parse_score_post_value(raw)
             max_sc = float(subj.max_score)
             if val is not None and 0 <= val <= max_sc:
-                Score.objects.update_or_create(
+                prev = Score.objects.filter(student=student, subject=subj).first()
+                old_val = float(prev.value) if prev else None
+                obj, created = Score.objects.update_or_create(
                     student=student,
                     subject=subj,
                     defaults={"value": val},
                 )
+                if created:
+                    log_score_change(
+                        obj,
+                        old_value=None,
+                        new_value=val,
+                        reason=ScoreHistory.REASON_INITIAL,
+                        comment="Saisie administrateur (par élève)",
+                        admin_user=request.user,
+                    )
+                elif old_val is not None and old_val != val:
+                    log_score_change(
+                        obj,
+                        old_value=old_val,
+                        new_value=val,
+                        reason=ScoreHistory.REASON_CORRECTION,
+                        comment="Modification administrateur (par élève)",
+                        admin_user=request.user,
+                    )
                 updated += 1
         messages.success(request, f"{updated} note(s) enregistrée(s) pour {student.last_name} {student.first_name}.")
         return redirect("exams:scores_by_student", student_id=student.id)
 
-    scores_map = {
-        s.subject_id: s.value
+    score_by_subject = {
+        s.subject_id: s
         for s in Score.objects.filter(student=student, subject__exam=exam).select_related("subject")
     }
+    scores_map = {sid: s.value for sid, s in score_by_subject.items()}
 
     gscale = _safe_grading_scale(exam)
     subjects_rows = []
     for subj in subjects:
+        sco = score_by_subject.get(subj.id)
         subjects_rows.append({
             "subject": subj,
             "score": scores_map.get(subj.id, ""),
+            "score_obj": sco,
             "scaled_passing_threshold": round(
                 exam.passing_grade * (float(subj.max_score) / gscale), 4,
             ),

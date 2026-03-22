@@ -9,9 +9,14 @@
         <div>
             <p class="mt-0.5 text-sm text-slate-600">{{ subjects|length }} épreuve{{ subjects|length|pluralize }}</p>
         </div>
-        <a href="{% url 'exams:subject_create' %}" class="btn btn-primary btn-sm gap-1">
-            <i data-lucide="plus" class="w-4 h-4"></i> Ajouter
-        </a>
+        <div class="flex flex-wrap gap-2">
+            <a href="{% url 'exams:exam_correction_qr_png' %}" target="_blank" rel="noopener" class="btn btn-outline btn-sm gap-1 border-[#0b5394]/40 text-[#073763]" download>
+                <i data-lucide="qr-code" class="w-4 h-4"></i> QR correcteurs
+            </a>
+            <a href="{% url 'exams:subject_create' %}" class="btn btn-primary btn-sm gap-1">
+                <i data-lucide="plus" class="w-4 h-4"></i> Ajouter
+            </a>
+        </div>
     </div>
 
     <div class="card bg-base-100 shadow-sm border border-base-300">

@@ -1,0 +1,28 @@
+{% extends "correction/base.html" %}
+{% block title %}Mes épreuves — G-Exam{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <div class="flex items-center justify-between gap-2">
+        <h1 class="text-lg font-semibold text-slate-900">Épreuves assignées</h1>
+        <a href="{% url 'exams:corrector_logout' %}" class="btn btn-ghost btn-sm">Déconnexion</a>
+    </div>
+    {% if subjects %}
+    <ul class="space-y-2">
+        {% for s in subjects %}
+        <li>
+            <a href="{% url 'exams:corrector_grade' exam_code=exam.code subject_id=s.id %}"
+               class="flex items-center justify-between rounded-xl border border-base-300 bg-white px-4 py-4 shadow-sm transition hover:border-[#0b5394]/50 hover:shadow-md">
+                <span class="font-medium text-slate-800">{{ s.name }}</span>
+                <span class="badge badge-ghost">Max {{ s.max_score }}</span>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="alert alert-info text-sm">
+        Aucune épreuve ne vous est assignée pour cet examen. Contactez l’administrateur.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

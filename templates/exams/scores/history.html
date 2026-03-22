@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Historique note — G-Exam{% endblock %}
+{% block page_title %}Historique de la note{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl space-y-4">
+    <a href="{% url 'exams:scores_by_subject' score.subject_id %}" class="btn btn-ghost btn-sm gap-1">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Retour
+    </a>
+
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+        <div class="card-body">
+            <h2 class="text-lg font-semibold">{{ score.subject.name }}</h2>
+            <p class="text-sm text-slate-600">
+                Candidat : <span class="font-mono">{{ score.student.candidate_number }}</span> —
+                {{ score.student.last_name }} {{ score.student.first_name }}
+            </p>
+            <p class="text-sm mt-2">Note actuelle : <strong>{{ score.value }}</strong> / {{ score.subject.max_score }}</p>
+        </div>
+    </div>
+
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+        <div class="card-body">
+            <h3 class="font-semibold mb-3">Chronologie</h3>
+            {% if entries %}
+            <ul class="space-y-3">
+                {% for e in entries %}
+                <li class="rounded-lg border border-base-200 bg-base-200/30 p-3 text-sm">
+                    <p class="text-xs text-base-content/60">{{ e.created_at|date:"d/m/Y H:i" }}</p>
+                    <p class="font-medium">{{ e.get_reason_display }}</p>
+                    <p class="text-xs text-base-content/70">
+                        {% if e.old_value != None %}{{ e.old_value }} → {% endif %}{{ e.new_value }}
+                    </p>
+                    {% if e.comment %}<p class="text-xs mt-1">{{ e.comment }}</p>{% endif %}
+                    <p class="text-xs text-base-content/50 mt-1">
+                        {% if e.changed_by_teacher %}Correcteur : {{ e.changed_by_teacher }}{% endif %}
+                        {% if e.changed_by_admin %} · Admin : {{ e.changed_by_admin.username }}{% endif %}
+                    </p>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-sm text-base-content/60">Aucune entrée d’historique (note créée avant la traçabilité ou pas encore modifiée).</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

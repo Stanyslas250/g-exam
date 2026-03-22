@@ -57,6 +57,7 @@
                             <th>Épreuve</th>
                             <th>Coef. / Max</th>
                             <th class="w-40">Note</th>
+                            <th class="w-10 text-center" title="Historique">Hist.</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -74,10 +75,19 @@
                                        autocomplete="off"
                                        aria-label="Note {{ row.subject.name }}">
                             </td>
+                            <td class="text-center">
+                                {% if row.score_obj %}
+                                <a href="{% url 'exams:score_history' row.score_obj.pk %}" class="btn btn-ghost btn-xs btn-square" title="Historique" aria-label="Historique">
+                                    <i data-lucide="history" class="h-4 w-4"></i>
+                                </a>
+                                {% else %}
+                                <span class="text-base-content/30">—</span>
+                                {% endif %}
+                            </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="3" class="text-center py-8 text-base-content/50">Aucune épreuve pour cet examen.</td>
+                            <td colspan="4" class="text-center py-8 text-base-content/50">Aucune épreuve pour cet examen.</td>
                         </tr>
                         {% endfor %}
                     </tbody>

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Harmonisation — {{ subject.name }} — G-Exam{% endblock %}
+{% block page_title %}Harmonisation — {{ subject.name }}{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-4xl">
+    <a href="{% url 'exams:scores_by_subject' subject.id %}" class="btn btn-ghost btn-sm gap-1">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Retour aux notes
+    </a>
+
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+        <div class="card-body space-y-4">
+            <p class="text-sm text-slate-600">Notes concernées sur cette épreuve : <strong>{{ total_scores }}</strong></p>
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="form-control">
+                    <label class="label" for="{{ field.id_for_label }}"><span class="label-text font-medium">{{ field.label }}</span></label>
+                    {{ field }}
+                    {% if field.help_text %}<p class="text-xs text-base-content/60 mt-1">{{ field.help_text }}</p>{% endif %}
+                    {% if field.errors %}<p class="text-error text-sm">{{ field.errors.0 }}</p>{% endif %}
+                </div>
+                {% endfor %}
+                <div class="flex flex-wrap gap-2">
+                    <button type="submit" name="action" value="preview" class="btn btn-outline btn-primary gap-1">
+                        <i data-lucide="eye" class="w-4 h-4"></i> Aperçu (25 premières)
+                    </button>
+                    {% if preview_rows %}
+                    <button type="submit" name="action" value="apply" class="btn btn-error gap-1" data-confirm="Appliquer l’harmonisation à toutes les notes de cette épreuve ? Cette action est tracée dans l’historique.">
+                        <i data-lucide="check" class="w-4 h-4"></i> Appliquer à tout
+                    </button>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if preview_rows %}
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+        <div class="card-body">
+            <h2 class="text-lg font-semibold mb-3">Aperçu (échantillon)</h2>
+            <div class="overflow-x-auto">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>N° candidat</th>
+                            <th>Avant</th>
+                            <th>Après</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in preview_rows %}
+                        <tr>
+                            <td class="font-mono text-xs">{{ row.candidate_number }}</td>
+                            <td>{{ row.old }}</td>
+                            <td class="font-semibold">{{ row.new }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-xs text-base-content/60 mt-2">Échantillon : {{ preview_total_sample }} note(s) sur {{ total_scores }}.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,7 +1,17 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import Exam, School, Student, Subject, Score, Room
+from .models import (
+    Exam,
+    School,
+    Student,
+    Subject,
+    Score,
+    Room,
+    Teacher,
+    SubjectAssignment,
+    Harmonization,
+)
 
 
 INPUT_CSS = "input input-bordered w-full"
@@ -142,4 +152,103 @@ class ExamCodeForm(forms.Form):
             "placeholder": "Entrez le code de l'examen",
             "autofocus": True,
         }),
+    )
+
+
+class TeacherForm(forms.ModelForm):
+    class Meta:
+        model = Teacher
+        fields = ["first_name", "last_name", "code", "email", "phone", "is_active"]
+        widgets = {
+            "first_name": forms.TextInput(attrs={"class": INPUT_CSS, "placeholder": "Prénom"}),
+            "last_name": forms.TextInput(attrs={"class": INPUT_CSS, "placeholder": "Nom"}),
+            "code": forms.TextInput(attrs={"class": INPUT_CSS, "placeholder": "Code unique de connexion"}),
+            "email": forms.EmailInput(attrs={"class": INPUT_CSS, "placeholder": "optionnel"}),
+            "phone": forms.TextInput(attrs={"class": INPUT_CSS, "placeholder": "optionnel"}),
+            "is_active": forms.CheckboxInput(attrs={"class": "checkbox checkbox-primary"}),
+        }
+
+
+class SubjectAssignmentForm(forms.ModelForm):
+    class Meta:
+        model = SubjectAssignment
+        fields = ["subject", "is_lead_corrector"]
+        widgets = {
+            "subject": forms.Select(attrs={"class": SELECT_CSS}),
+            "is_lead_corrector": forms.CheckboxInput(attrs={"class": "checkbox checkbox-primary"}),
+        }
+
+    def __init__(self, *args, exam=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if exam is not None:
+            self.fields["subject"].queryset = Subject.objects.filter(exam=exam).order_by("name")
+
+
+class CorrectorLoginForm(forms.Form):
+    code = forms.CharField(
+        max_length=64,
+        label="Identifiant correcteur",
+        widget=forms.TextInput(attrs={
+            "class": INPUT_CSS,
+            "placeholder": "Votre code correcteur",
+            "autocomplete": "username",
+            "autofocus": True,
+        }),
+    )
+
+
+class CorrectorGradeForm(forms.Form):
+    candidate_number = forms.CharField(
+        max_length=20,
+        label="N° candidat (matricule)",
+        widget=forms.TextInput(attrs={
+            "class": INPUT_CSS,
+            "placeholder": "Matricule",
+            "autocomplete": "off",
+        }),
+    )
+    value = forms.FloatField(
+        label="Note",
+        widget=forms.NumberInput(attrs={
+            "class": INPUT_CSS,
+            "step": "0.25",
+            "min": "0",
+            "autocomplete": "off",
+        }),
+    )
+    recorrection_comment = forms.CharField(
+        label="Motif de la modification",
+        required=False,
+        widget=forms.Textarea(attrs={
+            "class": TEXTAREA_CSS,
+            "rows": 2,
+            "placeholder": "Obligatoire si une note existe déjà",
+        }),
+    )
+
+
+class HarmonizationForm(forms.Form):
+    adjustment_type = forms.ChoiceField(
+        label="Type d’ajustement",
+        choices=Harmonization.ADJUSTMENT_TYPE_CHOICES,
+        widget=forms.Select(attrs={"class": SELECT_CSS}),
+    )
+    value = forms.FloatField(
+        label="Valeur",
+        help_text="Points à ajouter, coefficient (ex. 1.05), ou note plancher selon le type.",
+        widget=forms.NumberInput(attrs={"class": INPUT_CSS, "step": "0.01"}),
+    )
+    comment = forms.CharField(
+        label="Commentaire",
+        required=False,
+        widget=forms.Textarea(attrs={"class": TEXTAREA_CSS, "rows": 2}),
+    )
+
+
+class RecorrectionForm(forms.Form):
+    """Formulaire court pour motif de re-correction (interface admin)."""
+
+    comment = forms.CharField(
+        label="Motif de la modification",
+        widget=forms.Textarea(attrs={"class": TEXTAREA_CSS, "rows": 2}),
     )

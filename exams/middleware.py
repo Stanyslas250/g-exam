@@ -10,6 +10,7 @@ EXEMPT_URLS = [
     "/exam/create/",
     "/exam/import/",
     "/exam/generate-code/",
+    "/correction/",
 ]
 
 

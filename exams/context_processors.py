@@ -1,4 +1,4 @@
-from .models import Exam, School
+from .models import Exam, School, Teacher
 
 
 def active_exam(request):
@@ -19,6 +19,7 @@ def active_exam(request):
             "subjects": exam.subjects.count(),
             "schools": School.objects.filter(students__exam=exam).distinct().count(),
             "rooms": exam.rooms.count(),
+            "teachers": Teacher.objects.count(),
         }
 
     return {"active_exam": exam, "sidebar_counts": sidebar_counts}

@@ -31,6 +31,9 @@
                     <p id="scores-dirty-indicator" class="text-xs font-semibold text-warning hidden">Modifications non enregistrées</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
+                    <a href="{% url 'exams:scores_harmonize' subject.id %}" class="btn btn-outline btn-sm gap-1 border-[#0b5394]/40 text-[#073763]">
+                        <i data-lucide="scale" class="h-4 w-4"></i> Harmoniser
+                    </a>
                     {% if toolbar_stats %}
                     <span class="text-xs sm:text-sm text-base-content/70">
                         Moy. <strong>{{ toolbar_stats.avg }}</strong> · Min {{ toolbar_stats.min }} · Max {{ toolbar_stats.max }}
@@ -106,6 +109,7 @@
                         <th>Établissement</th>
                         <th>Statut</th>
                         <th class="w-36">Note /{{ subject.max_score }}</th>
+                        <th class="w-10 text-center" title="Historique">Hist.</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -134,10 +138,19 @@
                                    autocomplete="off"
                                    aria-label="Note pour {{ item.student.last_name }} {{ item.student.first_name }}">
                         </td>
+                        <td class="text-center">
+                            {% if item.score_obj %}
+                            <a href="{% url 'exams:score_history' item.score_obj.pk %}" class="btn btn-ghost btn-xs btn-square" title="Historique de la note" aria-label="Historique">
+                                <i data-lucide="history" class="h-4 w-4"></i>
+                            </a>
+                            {% else %}
+                            <span class="text-base-content/30">—</span>
+                            {% endif %}
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="text-center py-10 text-base-content/50">Aucun élève sur cette page (ajustez les filtres).</td>
+                        <td colspan="7" class="text-center py-10 text-base-content/50">Aucun élève sur cette page (ajustez les filtres).</td>
                     </tr>
                     {% endfor %}
                 </tbody>

@@ -80,6 +80,15 @@
                 {% if sidebar_counts %}<span class="badge badge-sm shrink-0 border-white/10 bg-white/10 font-mono text-[0.65rem]">{{ sidebar_counts.subjects }}</span>{% endif %}
             </a>
 
+            <a href="{% url 'exams:teachers_list' %}"
+               class="sidebar-link flex items-center justify-between gap-2 px-3 py-2.5 text-sm {% if 'teacher' in request.resolver_match.url_name %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
+                <span class="flex items-center gap-3 min-w-0">
+                    <i data-lucide="user-cog" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>
+                    <span class="truncate">Enseignants</span>
+                </span>
+                {% if sidebar_counts %}<span class="badge badge-sm shrink-0 border-white/10 bg-white/10 font-mono text-[0.65rem]">{{ sidebar_counts.teachers }}</span>{% endif %}
+            </a>
+
             <a href="{% url 'exams:scores' %}"
                class="sidebar-link flex items-center gap-3 px-3 py-2.5 text-sm {% if 'score' in request.resolver_match.url_name %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
                 <i data-lucide="pen-line" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>

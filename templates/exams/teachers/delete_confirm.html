@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Supprimer enseignant — G-Exam{% endblock %}
+{% block page_title %}Supprimer l’enseignant{% endblock %}
+
+{% block content %}
+<div class="card bg-base-100 shadow-sm border border-base-300 max-w-md">
+    <div class="card-body space-y-4">
+        <p>Supprimer <strong>{{ teacher.last_name }} {{ teacher.first_name }}</strong> (code {{ teacher.code }}) ?</p>
+        <p class="text-sm text-base-content/60">Les assignations et l’historique liés seront conservés ou anonymisés selon les règles de la base.</p>
+        <form method="post" class="flex gap-2">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-error">Supprimer</button>
+            <a href="{% url 'exams:teachers_list' %}" class="btn btn-ghost">Annuler</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
