@@ -1,5 +1,17 @@
 /* G-Exam — design system (refonte visuelle) */
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 :root {
   --gexam-brand: #073763;
   --gexam-brand-hover: #0b5394;
@@ -163,4 +175,54 @@
     box-shadow: none !important;
     border: 1px solid #ccc !important;
   }
+}
+
+/* Saisie des notes */
+.scores-sticky-toolbar {
+  position: sticky;
+  top: 3.75rem;
+  z-index: 20;
+  backdrop-filter: blur(8px);
+  background-color: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.score-input-valid {
+  background-color: rgba(34, 197, 94, 0.12) !important;
+  border-color: rgba(34, 197, 94, 0.45) !important;
+}
+
+.score-input-below {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+  border-color: rgba(239, 68, 68, 0.45) !important;
+}
+
+.score-input-warning {
+  border-color: rgba(234, 179, 8, 0.9) !important;
+  box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.25);
+}
+
+.score-input-flash {
+  animation: scoreFlash 0.35s ease-out;
+}
+
+@keyframes scoreFlash {
+  from {
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.45);
+  }
+  to {
+    box-shadow: none;
+  }
+}
+
+.scores-table-wrap {
+  max-height: min(70vh, 720px);
+  overflow: auto;
+}
+
+.scores-table-wrap thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 1px 0 rgba(148, 163, 184, 0.35);
 }

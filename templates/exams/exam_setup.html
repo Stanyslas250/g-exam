@@ -20,12 +20,23 @@
 
     <div class="card bg-base-100 shadow-sm border border-base-300">
         <div class="card-body">
-            <form method="post" class="space-y-4 max-w-lg">
+            <form method="post" id="exam-setup-form" class="space-y-4 max-w-2xl">
                 {% csrf_token %}
                 {% for field in form %}
                 <div class="form-control">
-                    <label class="label"><span class="label-text font-medium">{{ field.label }}</span></label>
+                    <label class="label" for="{{ field.id_for_label }}"><span class="label-text font-medium">{{ field.label }}</span></label>
+                    {% if field.name == "code" %}
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-start">
+                        <div class="min-w-0 flex-1">{{ field }}</div>
+                        <button type="button" id="btn-generate-exam-code-setup" class="btn btn-outline gap-1 shrink-0 border-[#0b5394]/40 text-[#073763] hover:bg-[#073763]/10">
+                            <i data-lucide="sparkles" class="h-4 w-4"></i>
+                            Générer un code
+                        </button>
+                    </div>
+                    <p class="label"><span class="label-text-alt text-base-content/50">Génère un nouveau code unique sans enregistrer le formulaire.</span></p>
+                    {% else %}
                     {{ field }}
+                    {% endif %}
                     {% if field.help_text %}<label class="label"><span class="label-text-alt text-base-content/50">{{ field.help_text }}</span></label>{% endif %}
                     {% if field.errors %}<label class="label"><span class="label-text-alt text-error">{{ field.errors.0 }}</span></label>{% endif %}
                 </div>
@@ -38,4 +49,34 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const btn = document.getElementById("btn-generate-exam-code-setup");
+    const codeInput = document.getElementById("id_code");
+    const yearInput = document.getElementById("id_year");
+    const typeInput = document.getElementById("id_exam_type");
+    if (!btn || !codeInput) return;
+    const url = "{% url 'exams:generate_exam_code' %}";
+    const csrf = document.querySelector("#exam-setup-form input[name=csrfmiddlewaretoken]")?.value || "";
+    btn.addEventListener("click", async function () {
+        btn.disabled = true;
+        const fd = new FormData();
+        fd.append("csrfmiddlewaretoken", csrf);
+        if (yearInput) fd.append("year", yearInput.value || "");
+        if (typeInput) fd.append("exam_type", typeInput.value || "");
+        try {
+            const res = await fetch(url, { method: "POST", body: fd, headers: { "X-Requested-With": "XMLHttpRequest" } });
+            const data = await res.json();
+            if (data.code) codeInput.value = data.code;
+        } catch (e) { console.error(e); }
+        finally {
+            btn.disabled = false;
+            if (window.lucide) lucide.createIcons();
+        }
+    });
+})();
+</script>
 {% endblock %}

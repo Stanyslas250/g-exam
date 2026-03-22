@@ -48,7 +48,7 @@
                                     <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
                                 </a>
                                 <form method="post" action="{% url 'exams:subject_delete' subject.pk %}"
-                                      onsubmit="return confirm('Supprimer cette épreuve et toutes ses notes ?')">
+                                      data-confirm="Supprimer cette épreuve et toutes ses notes ?">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-ghost btn-xs text-error">
                                         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>

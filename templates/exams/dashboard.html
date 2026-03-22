@@ -5,17 +5,118 @@
 {% block page_title %}Tableau de bord{% endblock %}
 
 {% block content %}
+{% if show_created_code %}
+<dialog id="modal-new-exam-code" class="modal modal-open">
+    <div class="modal-box max-w-md rounded-2xl border border-slate-200 shadow-xl">
+        <h3 class="text-lg font-bold text-slate-900">Examen créé</h3>
+        <p class="py-2 text-sm text-slate-600">
+            {% if show_created_name %}« {{ show_created_name }} » est prêt.{% else %}Votre examen est prêt.{% endif %}
+            Conservez ce code pour le partager avec votre équipe.
+        </p>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <code id="created-exam-code" class="flex-1 rounded-lg bg-slate-100 px-3 py-2 font-mono text-sm font-semibold text-[#073763]">{{ show_created_code }}</code>
+            <button type="button" id="btn-copy-created-code" class="btn btn-primary gap-1 shrink-0">
+                <i data-lucide="copy" class="h-4 w-4"></i> Copier
+            </button>
+        </div>
+        <div class="modal-action">
+            <form method="dialog">
+                <button type="submit" class="btn">Fermer</button>
+            </form>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop bg-slate-900/40"><button type="submit" class="cursor-default">close</button></form>
+</dialog>
+{% endif %}
+
 <div class="space-y-6">
-    <!-- Title -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <p class="mt-0.5 text-sm text-slate-600">Vue d'ensemble de l'examen <strong class="font-semibold text-slate-800">{{ exam.name }}</strong> ({{ exam.year }})</p>
+    <!-- Fiche examen -->
+    <div class="overflow-hidden rounded-2xl border border-slate-200/90 bg-gradient-to-r from-[#073763] to-[#0b5394] p-6 text-white shadow-lg shadow-[#073763]/20">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div class="min-w-0 flex-1 space-y-2">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="rounded-full bg-white/15 px-3 py-0.5 text-xs font-semibold uppercase tracking-wide text-white/90">{{ exam.get_exam_type_display }}</span>
+                    {% if exam.is_locked %}
+                    <span class="badge badge-warning gap-1 border-0 bg-amber-400/90 text-amber-950"><i data-lucide="lock" class="h-3 w-3"></i> Verrouillé</span>
+                    {% else %}
+                    <span class="badge gap-1 border-0 bg-emerald-400/20 text-emerald-100"><i data-lucide="unlock" class="h-3 w-3"></i> Actif</span>
+                    {% endif %}
+                </div>
+                <h2 class="text-2xl font-light tracking-tight md:text-3xl">{{ exam.name }}</h2>
+                <p class="text-sm text-white/80">
+                    {% if exam.start_date or exam.end_date %}
+                    {{ exam.start_date|date:"d/m/Y"|default:"—" }} — {{ exam.end_date|date:"d/m/Y"|default:"—" }}
+                    {% if exam.location %}· {{ exam.location }}{% endif %}
+                    {% elif exam.location %}{{ exam.location }}{% else %}Année {{ exam.year }}{% endif %}
+                </p>
+                {% if exam.description %}
+                <p class="max-w-3xl text-sm text-white/75">{{ exam.description|truncatewords:40 }}</p>
+                {% endif %}
+            </div>
+            <div class="flex w-full flex-col gap-2 sm:w-auto lg:items-end">
+                <p class="text-xs font-semibold uppercase tracking-wider text-white/60">Code d'accès</p>
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="tooltip tooltip-left font-mono text-lg font-bold tracking-wide" data-tip="Code à communiquer pour rejoindre cet examen">{{ exam.code }}</span>
+                    <button type="button" class="btn btn-sm border-white/30 bg-white/10 text-white hover:bg-white/20 gap-1 copy-exam-code-btn" data-code="{{ exam.code }}" aria-label="Copier le code d'accès">
+                        <i data-lucide="copy" class="h-4 w-4"></i>
+                    </button>
+                </div>
+                <a href="{% url 'exams:exam_setup' %}" class="btn btn-sm btn-ghost border border-white/20 text-white hover:bg-white/10">Modifier la configuration</a>
+            </div>
         </div>
-        {% if exam.is_locked %}
-        <div class="badge badge-warning gap-1 py-3 px-4">
-            <i data-lucide="lock" class="w-4 h-4"></i> Examen verrouillé
+    </div>
+
+    <!-- Stepper -->
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-4 md:p-6">
+            <h3 class="text-sm font-semibold uppercase tracking-wide text-base-content/50 mb-4">Progression de la configuration</h3>
+            <ul class="steps steps-vertical sm:steps-horizontal w-full">
+                <li class="step step-primary">Examen</li>
+                <li class="step {% if step_schools %}step-primary{% endif %}">Établissements</li>
+                <li class="step {% if step_students %}step-primary{% endif %}">Élèves</li>
+                <li class="step {% if step_subjects %}step-primary{% endif %}">Épreuves</li>
+                <li class="step {% if step_scores %}step-primary{% endif %}">Notes</li>
+                <li class="step {% if step_complete %}step-primary{% endif %}">Complet</li>
+            </ul>
         </div>
-        {% endif %}
+    </div>
+
+    <!-- Progression notes globale + donut -->
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div class="card bg-base-100 shadow-sm border border-base-300 lg:col-span-2">
+            <div class="card-body p-5">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <h3 class="font-semibold">Progression des notes</h3>
+                    <span class="text-sm font-medium text-base-content/70">{{ scores_entered }} / {{ slots_total }} notes · {{ scores_progress_pct }}%</span>
+                </div>
+                <progress class="progress progress-primary mt-3 h-3 w-full" value="{{ scores_progress_pct }}" max="100"></progress>
+                <div class="mt-4 space-y-3 max-h-56 overflow-y-auto pr-1">
+                    {% for row in subject_score_progress %}
+                    <div>
+                        <div class="mb-1 flex justify-between text-xs">
+                            <a href="{% url 'exams:scores_by_subject' row.subject.id %}" class="link link-hover font-medium text-primary">{{ row.subject.name }}</a>
+                            <span class="text-base-content/60">{{ row.entered }}/{{ row.total }}</span>
+                        </div>
+                        <progress class="progress progress-secondary h-2 w-full" value="{{ row.pct }}" max="100"></progress>
+                    </div>
+                    {% empty %}
+                    <p class="text-sm text-base-content/50">Ajoutez des épreuves pour commencer la saisie des notes.</p>
+                    {% endfor %}
+                </div>
+                <a href="{% url 'exams:scores' %}" class="btn btn-outline btn-sm mt-4 gap-1">
+                    <i data-lucide="pen-line" class="h-4 w-4"></i> Aller à la saisie
+                </a>
+            </div>
+        </div>
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body p-5 flex flex-col items-center justify-center">
+                <h3 class="mb-2 text-sm font-semibold text-base-content/70 self-start">Résultats (aperçu)</h3>
+                <div class="relative h-48 w-48">
+                    <canvas id="dashboardDonut" aria-label="Répartition admis, ajournés, absents, en attente"></canvas>
+                </div>
+                <p class="mt-2 text-center text-xs text-base-content/50">Basé sur les moyennes calculées et les absences</p>
+            </div>
+        </div>
     </div>
 
     <!-- Stats cards -->
@@ -126,7 +227,7 @@
                 </div>
                 <div>
                     <p class="text-xs text-base-content/50">Moyenne générale</p>
-                    <p class="text-xl font-bold">{{ overall_average }}/20</p>
+                    <p class="text-xl font-bold">{{ overall_average }}/{{ exam.grading_scale }}</p>
                 </div>
             </div>
         </div>
@@ -137,7 +238,7 @@
                 </div>
                 <div>
                     <p class="text-xs text-base-content/50">Meilleure moyenne</p>
-                    <p class="text-xl font-bold">{{ highest_avg }}/20</p>
+                    <p class="text-xl font-bold">{{ highest_avg }}/{{ exam.grading_scale }}</p>
                 </div>
             </div>
         </div>
@@ -148,7 +249,7 @@
                 </div>
                 <div>
                     <p class="text-xs text-base-content/50">Plus basse moyenne</p>
-                    <p class="text-xl font-bold">{{ lowest_avg }}/20</p>
+                    <p class="text-xl font-bold">{{ lowest_avg }}/{{ exam.grading_scale }}</p>
                 </div>
             </div>
         </div>
@@ -175,4 +276,52 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const labels = {{ donut_labels|safe }};
+    const data = {{ donut_data|safe }};
+    const colors = {{ donut_colors|safe }};
+    const el = document.getElementById("dashboardDonut");
+    if (el && typeof Chart !== "undefined" && data.some(function (v) { return v > 0; })) {
+        new Chart(el, {
+            type: "doughnut",
+            data: {
+                labels: labels,
+                datasets: [{ data: data, backgroundColor: colors, borderWidth: 0 }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } } },
+            },
+        });
+    }
+
+    function copyText(text) {
+        if (!text) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).catch(function () {});
+        }
+    }
+
+    document.querySelectorAll(".copy-exam-code-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            copyText(btn.getAttribute("data-code"));
+        });
+    });
+
+    const createdBtn = document.getElementById("btn-copy-created-code");
+    const createdEl = document.getElementById("created-exam-code");
+    if (createdBtn && createdEl) {
+        createdBtn.addEventListener("click", function () {
+            copyText(createdEl.textContent.trim());
+        });
+    }
+
+    if (window.lucide) lucide.createIcons();
+})();
+</script>
 {% endblock %}

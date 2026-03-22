@@ -3,12 +3,47 @@ from django.db import models
 
 
 class Exam(models.Model):
+    EXAM_TYPE_BAC = "BAC"
+    EXAM_TYPE_BEPC = "BEPC"
+    EXAM_TYPE_CAP = "CAP"
+    EXAM_TYPE_PROBATOIRE = "PROBATOIRE"
+    EXAM_TYPE_AUTRE = "AUTRE"
+
+    EXAM_TYPE_CHOICES = [
+        (EXAM_TYPE_BAC, "BAC"),
+        (EXAM_TYPE_BEPC, "BEPC"),
+        (EXAM_TYPE_CAP, "CAP"),
+        (EXAM_TYPE_PROBATOIRE, "Probatoire"),
+        (EXAM_TYPE_AUTRE, "Autre"),
+    ]
+
     name = models.CharField(max_length=255, verbose_name="Nom de l'examen")
     code = models.CharField(
-        max_length=50, unique=True, verbose_name="Code d'accès",
-        help_text="Code unique pour accéder à cet examen (ex: BAC2025-CM)",
+        max_length=50,
+        unique=True,
+        blank=True,
+        default="",
+        verbose_name="Code d'accès",
+        help_text="Code unique pour accéder à cet examen (ex: BAC2025-CM). Laisser vide pour génération automatique.",
     )
     year = models.IntegerField(verbose_name="Année")
+    exam_type = models.CharField(
+        max_length=20,
+        choices=EXAM_TYPE_CHOICES,
+        default=EXAM_TYPE_AUTRE,
+        verbose_name="Type d'examen",
+    )
+    description = models.TextField(blank=True, default="", verbose_name="Description")
+    start_date = models.DateField(blank=True, null=True, verbose_name="Date de début")
+    end_date = models.DateField(blank=True, null=True, verbose_name="Date de fin")
+    location = models.CharField(
+        max_length=255, blank=True, default="", verbose_name="Lieu / centre d'examen",
+    )
+    grading_scale = models.FloatField(
+        default=20.0,
+        verbose_name="Barème (note max de référence)",
+        help_text="Échelle des moyennes et du seuil (ex. 20 pour le bac, 10 pour un contrôle). Les notes par épreuve restent sur leur propre note max.",
+    )
     passing_grade = models.FloatField(default=10.0, verbose_name="Seuil de réussite")
     is_locked = models.BooleanField(default=False, verbose_name="Verrouillé")
     created_at = models.DateTimeField(auto_now_add=True)

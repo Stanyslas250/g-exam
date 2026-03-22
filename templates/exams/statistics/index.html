@@ -3,13 +3,38 @@
 {% block title %}Statistiques — G-Exam{% endblock %}
 {% block page_title %}Statistiques{% endblock %}
 
+{% block breadcrumbs %}
+<nav class="text-sm breadcrumbs mb-4" aria-label="Fil d'Ariane">
+    <ul>
+        <li><a href="{% url 'exams:dashboard' %}" class="link link-hover">Tableau de bord</a></li>
+        <li>Statistiques</li>
+    </ul>
+</nav>
+{% endblock %}
+
 {% block content %}
 <div class="space-y-6">
-    <div>
-        <p class="mt-0.5 text-sm text-slate-600">Analyses et graphiques de l'examen</p>
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+            <p class="mt-0.5 text-sm text-slate-600">Analyses et graphiques de l'examen (filtre par établissement pour le périmètre des cartes du haut).</p>
+        </div>
+        <form method="get" class="flex flex-wrap items-end gap-2">
+            <div class="form-control">
+                <label class="label py-0"><span class="label-text text-xs font-semibold">Établissement</span></label>
+                <select name="school" class="select select-bordered select-sm w-full max-w-xs">
+                    <option value="">Tous les établissements</option>
+                    {% for s in schools %}
+                    <option value="{{ s.id }}" {% if school_filter == s.id|stringformat:"d" %}selected{% endif %}>{{ s.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-sm btn-primary">Appliquer</button>
+            {% if school_filter %}
+            <a href="{% url 'exams:statistics' %}" class="btn btn-sm btn-ghost">Tout voir</a>
+            {% endif %}
+        </form>
     </div>
 
-    <!-- Global stats cards -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="stat-card card bg-base-100 shadow-sm border border-base-300">
             <div class="card-body p-4 text-center">
@@ -37,29 +62,45 @@
         </div>
     </div>
 
-    <!-- Summary row -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <div class="card bg-base-100 shadow-sm border border-base-300">
-            <div class="card-body p-4">
-                <p class="text-xs text-base-content/50">Moyenne générale</p>
-                <p class="text-xl font-bold">{{ stats.overall_average }}/20</p>
+            <div class="card-body p-3">
+                <p class="text-xs text-base-content/50">Moyenne</p>
+                <p class="text-lg font-bold">{{ stats.overall_average }}/{{ grading_scale }}</p>
             </div>
         </div>
         <div class="card bg-base-100 shadow-sm border border-base-300">
-            <div class="card-body p-4">
-                <p class="text-xs text-base-content/50">Meilleure moyenne</p>
-                <p class="text-xl font-bold text-success">{{ stats.highest }}/20</p>
+            <div class="card-body p-3">
+                <p class="text-xs text-base-content/50">Médiane</p>
+                <p class="text-lg font-bold">{{ median_avg }}/{{ grading_scale }}</p>
             </div>
         </div>
         <div class="card bg-base-100 shadow-sm border border-base-300">
-            <div class="card-body p-4">
-                <p class="text-xs text-base-content/50">Plus basse moyenne</p>
-                <p class="text-xl font-bold text-error">{{ stats.lowest }}/20</p>
+            <div class="card-body p-3">
+                <p class="text-xs text-base-content/50">Écart-type</p>
+                <p class="text-lg font-bold">{{ stdev_avg }}</p>
+            </div>
+        </div>
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body p-3">
+                <p class="text-xs text-base-content/50">Max</p>
+                <p class="text-lg font-bold text-success">{{ stats.highest }}/{{ grading_scale }}</p>
+            </div>
+        </div>
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body p-3">
+                <p class="text-xs text-base-content/50">Min</p>
+                <p class="text-lg font-bold text-error">{{ stats.lowest }}/{{ grading_scale }}</p>
+            </div>
+        </div>
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body p-3">
+                <p class="text-xs text-base-content/50">Absents</p>
+                <p class="text-lg font-bold">{{ stats.absent }}</p>
             </div>
         </div>
     </div>
 
-    <!-- Charts -->
     <div class="grid lg:grid-cols-2 gap-6">
         <div class="card bg-base-100 shadow-sm border border-base-300">
             <div class="card-body">
@@ -75,7 +116,23 @@
         </div>
     </div>
 
-    <!-- Subject stats -->
+    <div class="grid lg:grid-cols-2 gap-6">
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body flex flex-col items-center">
+                <h3 class="card-title text-base self-start">Répartition des mentions</h3>
+                <div class="h-56 w-56 max-w-full">
+                    <canvas id="mentionPieChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+            <div class="card-body">
+                <h3 class="card-title text-base">Moyenne générale par établissement</h3>
+                <canvas id="schoolChart" height="260"></canvas>
+            </div>
+        </div>
+    </div>
+
     {% if subject_stats %}
     <div class="card bg-base-100 shadow-sm border border-base-300">
         <div class="card-body">
@@ -87,6 +144,8 @@
                             <th>Épreuve</th>
                             <th>Copies</th>
                             <th>Moyenne</th>
+                            <th>Médiane</th>
+                            <th>σ</th>
                             <th>Max</th>
                             <th>Min</th>
                             <th>≥ moyenne</th>
@@ -98,6 +157,8 @@
                             <td class="font-medium">{{ ss.name }}</td>
                             <td>{{ ss.count }}</td>
                             <td class="font-semibold">{{ ss.average }}</td>
+                            <td>{{ ss.median }}</td>
+                            <td>{{ ss.stdev }}</td>
                             <td class="text-success">{{ ss.highest }}</td>
                             <td class="text-error">{{ ss.lowest }}</td>
                             <td>{{ ss.above_avg }}</td>
@@ -121,11 +182,15 @@
 
 {% block extra_js %}
 <script>
+    const gradingScale = {{ grading_scale }};
+    const subjectChartYMax = {{ subject_chart_y_max }};
     const distribution = {{ distribution|safe }};
     const subjectStats = {{ subject_stats_json|safe }};
-    const genderStats = {{ stats.gender_stats|safe }};
+    const genderStats = {{ gender_stats_json|safe }};
+    const mentionLabels = {{ mention_labels|safe }};
+    const mentionData = {{ mention_data|safe }};
+    const schoolChartData = {{ school_chart_json|safe }};
 
-    // Distribution chart
     if (distribution.length) {
         new Chart(document.getElementById('distributionChart'), {
             type: 'bar',
@@ -143,7 +208,6 @@
         });
     }
 
-    // Gender chart
     const genderLabels = [];
     const genderPassed = [];
     const genderFailed = [];
@@ -163,7 +227,46 @@
         });
     }
 
-    // Subject chart
+    var mentionEl = document.getElementById('mentionPieChart');
+    if (mentionEl && mentionLabels && mentionLabels.length && mentionData && mentionData.some(function (n) { return n > 0; })) {
+        new Chart(mentionEl, {
+            type: 'pie',
+            data: {
+                labels: mentionLabels,
+                datasets: [{
+                    data: mentionData,
+                    backgroundColor: [
+                        'rgba(239, 68, 68, 0.75)', 'rgba(34, 197, 94, 0.75)', 'rgba(59, 130, 246, 0.75)',
+                        'rgba(168, 85, 247, 0.75)', 'rgba(234, 179, 8, 0.75)', 'rgba(7, 55, 99, 0.75)',
+                    ],
+                    borderWidth: 0,
+                }],
+            },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } },
+        });
+    }
+
+    var schoolEl = document.getElementById('schoolChart');
+    if (schoolEl && schoolChartData && schoolChartData.length) {
+        new Chart(schoolEl, {
+            type: 'bar',
+            data: {
+                labels: schoolChartData.map(function (s) { return s.name; }),
+                datasets: [{
+                    label: 'Moyenne /' + String(gradingScale),
+                    data: schoolChartData.map(function (s) { return s.average; }),
+                    backgroundColor: 'rgba(11, 83, 148, 0.65)',
+                    borderRadius: 6,
+                }],
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, max: gradingScale } },
+            },
+        });
+    }
+
     if (subjectStats.length) {
         new Chart(document.getElementById('subjectChart'), {
             type: 'bar',
@@ -177,7 +280,7 @@
                     borderWidth: 1, borderRadius: 6,
                 }]
             },
-            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 20 } } }
+            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: subjectChartYMax } } }
         });
     }
 </script>

@@ -4,7 +4,7 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import mm
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
 
 
 def generate_results_pdf(exam, students_data: list[dict]) -> BytesIO:
@@ -97,6 +97,70 @@ def generate_room_dispatch_pdf(exam, rooms_data: list[dict]) -> BytesIO:
         ]))
         elements.append(table)
         elements.append(Spacer(1, 15))
+
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer
+
+
+def generate_transcripts_pdf(exam) -> BytesIO:
+    """Un relevé de notes par élève (plusieurs pages)."""
+    from ..models import Score, Student
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=15 * mm, bottomMargin=15 * mm)
+    elements = []
+    styles = getSampleStyleSheet()
+
+    students = Student.objects.filter(exam=exam).select_related("school").order_by("last_name", "first_name")
+    subjects = list(exam.subjects.order_by("name"))
+
+    for idx, student in enumerate(students):
+        if idx:
+            elements.append(PageBreak())
+        elements.append(
+            Paragraph(
+                f"Relevé de notes — {exam.name} ({exam.year})",
+                styles["Title"],
+            ),
+        )
+        elements.append(Spacer(1, 6))
+        elements.append(
+            Paragraph(
+                f"<b>{student.last_name}</b> {student.first_name} — N° {student.candidate_number} — {student.school.name}",
+                styles["Normal"],
+            ),
+        )
+        elements.append(Spacer(1, 10))
+
+        score_map = {
+            sc.subject_id: sc.value
+            for sc in Score.objects.filter(student=student).select_related("subject")
+        }
+        data = [["Épreuve", "Coefficient", "Note", "Sur"]]
+        for sub in subjects:
+            val = score_map.get(sub.id)
+            data.append([
+                sub.name,
+                str(sub.coefficient) if sub.coefficient is not None else "—",
+                f"{val:.2f}" if val is not None else "—",
+                str(sub.max_score),
+            ])
+
+        table = Table(data, colWidths=[200, 60, 60, 50], repeatRows=1)
+        table.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#073763")),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, -1), 9),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#F0F4FF")]),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ]))
+        elements.append(table)
+
+    if not elements:
+        elements.append(Paragraph("Aucun élève", styles["Normal"]))
 
     doc.build(elements)
     buffer.seek(0)

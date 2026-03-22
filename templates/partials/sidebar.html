@@ -54,21 +54,30 @@
             <p class="mb-2 mt-5 px-3 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-slate-500">Données</p>
 
             <a href="{% url 'exams:schools_list' %}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 text-sm {% if 'school' in request.resolver_match.url_name %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
-                <i data-lucide="building-2" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>
-                Établissements
+               class="sidebar-link flex items-center justify-between gap-2 px-3 py-2.5 text-sm {% if 'school' in request.resolver_match.url_name %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
+                <span class="flex items-center gap-3 min-w-0">
+                    <i data-lucide="building-2" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>
+                    <span class="truncate">Établissements</span>
+                </span>
+                {% if sidebar_counts %}<span class="badge badge-sm shrink-0 border-white/10 bg-white/10 font-mono text-[0.65rem]">{{ sidebar_counts.schools }}</span>{% endif %}
             </a>
 
             <a href="{% url 'exams:students_list' %}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 text-sm {% if 'student' in request.resolver_match.url_name %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
-                <i data-lucide="users" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>
-                Élèves
+               class="sidebar-link flex items-center justify-between gap-2 px-3 py-2.5 text-sm {% if 'student' in request.resolver_match.url_name %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
+                <span class="flex items-center gap-3 min-w-0">
+                    <i data-lucide="users" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>
+                    <span class="truncate">Élèves</span>
+                </span>
+                {% if sidebar_counts %}<span class="badge badge-sm shrink-0 border-white/10 bg-white/10 font-mono text-[0.65rem]">{{ sidebar_counts.students }}</span>{% endif %}
             </a>
 
             <a href="{% url 'exams:subjects_list' %}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 text-sm {% if 'subject' in request.resolver_match.url_name %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
-                <i data-lucide="book-open" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>
-                Épreuves
+               class="sidebar-link flex items-center justify-between gap-2 px-3 py-2.5 text-sm {% if 'subject' in request.resolver_match.url_name %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
+                <span class="flex items-center gap-3 min-w-0">
+                    <i data-lucide="book-open" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>
+                    <span class="truncate">Épreuves</span>
+                </span>
+                {% if sidebar_counts %}<span class="badge badge-sm shrink-0 border-white/10 bg-white/10 font-mono text-[0.65rem]">{{ sidebar_counts.subjects }}</span>{% endif %}
             </a>
 
             <a href="{% url 'exams:scores' %}"
@@ -92,9 +101,12 @@
             </a>
 
             <a href="{% url 'exams:rooms' %}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 text-sm {% if 'room' in request.resolver_match.url_name %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
-                <i data-lucide="door-open" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>
-                Salles
+               class="sidebar-link flex items-center justify-between gap-2 px-3 py-2.5 text-sm {% if 'room' in request.resolver_match.url_name %}active{% else %}text-slate-400 hover:bg-white/5 hover:text-slate-100{% endif %}">
+                <span class="flex items-center gap-3 min-w-0">
+                    <i data-lucide="door-open" class="h-[18px] w-[18px] shrink-0 opacity-90"></i>
+                    <span class="truncate">Salles</span>
+                </span>
+                {% if sidebar_counts %}<span class="badge badge-sm shrink-0 border-white/10 bg-white/10 font-mono text-[0.65rem]">{{ sidebar_counts.rooms }}</span>{% endif %}
             </a>
 
             <p class="mb-2 mt-5 px-3 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-slate-500">Outils</p>

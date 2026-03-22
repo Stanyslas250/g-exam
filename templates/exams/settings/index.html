@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Paramètres — G-Exam{% endblock %}
 {% block page_title %}Paramètres{% endblock %}
@@ -6,10 +7,40 @@
 {% block content %}
 <div class="space-y-6">
     <div>
-        <p class="mt-0.5 text-sm text-slate-600">Configuration de l'examen et informations système</p>
+        <p class="mt-0.5 text-sm text-slate-600">Résumé de l'examen actif, code d'accès et actions sensibles.</p>
     </div>
 
-    <!-- Exam info card -->
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body">
+            <h3 class="card-title text-base gap-2">
+                <i data-lucide="activity" class="w-5 h-5 text-primary"></i>
+                Résumé
+            </h3>
+            <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div class="rounded-xl border border-base-200 p-3 text-center">
+                    <p class="text-xs text-base-content/50">Élèves</p>
+                    <p class="text-xl font-bold text-[#073763]">{{ students_count }}</p>
+                </div>
+                <div class="rounded-xl border border-base-200 p-3 text-center">
+                    <p class="text-xs text-base-content/50">Épreuves</p>
+                    <p class="text-xl font-bold text-[#073763]">{{ subjects_count }}</p>
+                </div>
+                <div class="rounded-xl border border-base-200 p-3 text-center">
+                    <p class="text-xs text-base-content/50">Établissements</p>
+                    <p class="text-xl font-bold text-[#073763]">{{ schools_count }}</p>
+                </div>
+                <div class="rounded-xl border border-base-200 p-3 text-center">
+                    <p class="text-xs text-base-content/50">Notes</p>
+                    <p class="text-xl font-bold text-[#073763]">{{ scores_count }}<span class="text-sm font-normal text-base-content/50">/{{ slots_total }}</span></p>
+                </div>
+            </div>
+            {% if slots_total %}
+            <progress class="progress progress-primary mt-4 h-2 w-full" value="{{ completion_pct }}" max="100"></progress>
+            <p class="mt-1 text-xs text-base-content/60">Complétion de la saisie : {{ completion_pct }}%</p>
+            {% endif %}
+        </div>
+    </div>
+
     <div class="card bg-base-100 shadow-sm border border-base-300">
         <div class="card-body">
             <h3 class="card-title text-base gap-2">
@@ -22,17 +53,48 @@
                     <p class="font-medium">{{ exam.name }}</p>
                 </div>
                 <div>
+                    <p class="text-xs text-base-content/50 uppercase font-semibold">Type</p>
+                    <p class="font-medium">{{ exam.get_exam_type_display }}</p>
+                </div>
+                <div class="sm:col-span-2">
                     <p class="text-xs text-base-content/50 uppercase font-semibold">Code d'accès</p>
-                    <p class="font-mono badge badge-outline">{{ exam.code }}</p>
+                    <div class="mt-1 flex flex-wrap items-center gap-2">
+                        <code id="settings-exam-code" class="rounded-lg bg-base-200 px-3 py-1.5 font-mono text-sm font-semibold text-[#073763]">{{ exam.code }}</code>
+                        <button type="button" class="btn btn-sm btn-outline gap-1" id="btn-copy-settings-code">
+                            <i data-lucide="copy" class="w-4 h-4"></i> Copier
+                        </button>
+                    </div>
                 </div>
                 <div>
                     <p class="text-xs text-base-content/50 uppercase font-semibold">Année</p>
                     <p class="font-medium">{{ exam.year }}</p>
                 </div>
                 <div>
-                    <p class="text-xs text-base-content/50 uppercase font-semibold">Seuil de réussite</p>
-                    <p class="font-medium">{{ exam.passing_grade }}/20</p>
+                    <p class="text-xs text-base-content/50 uppercase font-semibold">Barème (moyenne)</p>
+                    <p class="font-medium">Note max de référence : {{ exam.grading_scale }}</p>
                 </div>
+                <div>
+                    <p class="text-xs text-base-content/50 uppercase font-semibold">Seuil de réussite</p>
+                    <p class="font-medium">{{ exam.passing_grade }}/{{ exam.grading_scale }}</p>
+                </div>
+                {% if exam.start_date or exam.end_date %}
+                <div>
+                    <p class="text-xs text-base-content/50 uppercase font-semibold">Période</p>
+                    <p class="font-medium">{{ exam.start_date|date:"d/m/Y"|default:"—" }} — {{ exam.end_date|date:"d/m/Y"|default:"—" }}</p>
+                </div>
+                {% endif %}
+                {% if exam.location %}
+                <div>
+                    <p class="text-xs text-base-content/50 uppercase font-semibold">Lieu</p>
+                    <p class="font-medium">{{ exam.location }}</p>
+                </div>
+                {% endif %}
+                {% if exam.description %}
+                <div class="sm:col-span-2">
+                    <p class="text-xs text-base-content/50 uppercase font-semibold">Description</p>
+                    <p class="font-medium text-sm">{{ exam.description }}</p>
+                </div>
+                {% endif %}
                 <div>
                     <p class="text-xs text-base-content/50 uppercase font-semibold">Statut</p>
                     {% if exam.is_locked %}
@@ -46,43 +108,43 @@
                     <p class="font-medium">{{ exam.created_at|date:"d/m/Y à H:i" }}</p>
                 </div>
             </div>
-            <div class="mt-4">
+            <div class="mt-4 flex flex-wrap gap-2">
                 <a href="{% url 'exams:exam_setup' %}" class="btn btn-sm btn-outline gap-1">
                     <i data-lucide="settings-2" class="w-4 h-4"></i> Modifier la configuration
+                </a>
+                <a href="{% url 'exams:export_json' 'backup' %}" class="btn btn-sm btn-ghost gap-1">
+                    <i data-lucide="database" class="w-4 h-4"></i> Télécharger la sauvegarde JSON
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Mentions config -->
-    <div class="card bg-base-100 shadow-sm border border-base-300">
+    <div class="card bg-base-100 shadow-sm border border-error/30">
         <div class="card-body">
-            <h3 class="card-title text-base gap-2">
-                <i data-lucide="award" class="w-5 h-5 text-secondary"></i>
-                Barème des mentions
+            <h3 class="card-title text-base gap-2 text-error">
+                <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                Zone de danger
             </h3>
-            <div class="overflow-x-auto mt-3">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>Mention</th>
-                            <th>Moyenne requise</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td><span class="badge badge-error badge-sm">Ajourné</span></td><td>&lt; {{ exam.passing_grade }}</td></tr>
-                        <tr><td><span class="badge badge-success badge-sm">Passable</span></td><td>{{ exam.passing_grade }} — 11.99</td></tr>
-                        <tr><td><span class="badge badge-info badge-sm">Assez Bien</span></td><td>12 — 13.99</td></tr>
-                        <tr><td><span class="badge badge-accent badge-sm">Bien</span></td><td>14 — 15.99</td></tr>
-                        <tr><td><span class="badge badge-secondary badge-sm">Très Bien</span></td><td>16 — 17.99</td></tr>
-                        <tr><td><span class="badge badge-primary badge-sm">Excellent</span></td><td>18 — 20</td></tr>
-                    </tbody>
-                </table>
+            <p class="text-sm text-base-content/70 mt-2">Ces actions affectent immédiatement les données de l'examen actif. Elles ne peuvent pas être annulées depuis l'interface.</p>
+            <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <form method="post" class="inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="clear_scores">
+                    <button type="submit" class="btn btn-sm btn-outline btn-error gap-1" data-confirm="Supprimer TOUTES les notes de cet examen ? Cette action est irréversible.">
+                        <i data-lucide="eraser" class="w-4 h-4"></i> Supprimer toutes les notes
+                    </button>
+                </form>
+                <form method="post" class="inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="clear_room_assignments">
+                    <button type="submit" class="btn btn-sm btn-outline btn-warning gap-1" data-confirm="Réinitialiser toutes les assignations de salles pour cet examen ?">
+                        <i data-lucide="door-open" class="w-4 h-4"></i> Réinitialiser les salles
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- System info -->
     <div class="card bg-base-100 shadow-sm border border-base-300">
         <div class="card-body">
             <h3 class="card-title text-base gap-2">
@@ -92,15 +154,7 @@
             <div class="grid sm:grid-cols-2 gap-4 mt-3 text-sm">
                 <div>
                     <p class="text-xs text-base-content/50 uppercase font-semibold">Application</p>
-                    <p>G-Exam v1.0</p>
-                </div>
-                <div>
-                    <p class="text-xs text-base-content/50 uppercase font-semibold">Framework</p>
-                    <p>Django 5.x</p>
-                </div>
-                <div>
-                    <p class="text-xs text-base-content/50 uppercase font-semibold">Base de données</p>
-                    <p>PostgreSQL</p>
+                    <p>G-Exam</p>
                 </div>
                 <div>
                     <p class="text-xs text-base-content/50 uppercase font-semibold">Utilisateur</p>
@@ -110,4 +164,18 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var btn = document.getElementById("btn-copy-settings-code");
+    var el = document.getElementById("settings-exam-code");
+    if (btn && el && navigator.clipboard) {
+        btn.addEventListener("click", function () {
+            navigator.clipboard.writeText(el.textContent.trim());
+        });
+    }
+})();
+</script>
 {% endblock %}

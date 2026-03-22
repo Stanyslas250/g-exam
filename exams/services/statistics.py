@@ -1,3 +1,4 @@
+import statistics
 from collections import Counter
 
 
@@ -61,15 +62,27 @@ def compute_subject_stats(scores: list[dict], max_score: float = 20.0) -> dict:
     """
     values = [s["value"] for s in scores if s.get("value") is not None]
     if not values:
-        return {"count": 0, "average": 0, "highest": 0, "lowest": 0, "above_avg": 0}
+        return {
+            "count": 0,
+            "average": 0,
+            "highest": 0,
+            "lowest": 0,
+            "above_avg": 0,
+            "median": 0,
+            "stdev": 0,
+        }
 
     avg = sum(values) / len(values)
+    med = statistics.median(values)
+    sd = round(statistics.pstdev(values), 2) if len(values) > 1 else 0.0
     return {
         "count": len(values),
         "average": round(avg, 2),
         "highest": round(max(values), 2),
         "lowest": round(min(values), 2),
         "above_avg": sum(1 for v in values if v >= max_score / 2),
+        "median": round(med, 2),
+        "stdev": sd,
     }
 
 

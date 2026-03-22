@@ -4,8 +4,17 @@ from .models import Exam, School, Student, Subject, Score, Room, RoomAssignment
 
 @admin.register(Exam)
 class ExamAdmin(admin.ModelAdmin):
-    list_display = ("name", "code", "year", "passing_grade", "is_locked", "created_at")
-    list_filter = ("is_locked", "year")
+    list_display = (
+        "name",
+        "code",
+        "year",
+        "exam_type",
+        "grading_scale",
+        "passing_grade",
+        "is_locked",
+        "created_at",
+    )
+    list_filter = ("is_locked", "year", "exam_type")
     search_fields = ("name", "code")
 
 

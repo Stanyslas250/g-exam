@@ -61,19 +61,23 @@ def calculate_student_average(
             return round(total / len(valid_scores), 2)
 
 
-def get_mention(average: float, passing_grade: float = 10.0) -> str:
-    """Retourne la mention en fonction de la moyenne."""
+def get_mention(
+    average: float,
+    passing_grade: float = 10.0,
+    scale_max: float = 20.0,
+) -> str:
+    """Retourne la mention en fonction de la moyenne (seuils proportionnels au barème)."""
     if average is None:
         return ""
     if average < passing_grade:
         return "Ajourné"
-    elif average < 12:
+    r = (scale_max / 20.0) if scale_max and scale_max > 0 else 1.0
+    if average < 12 * r:
         return "Passable"
-    elif average < 14:
+    if average < 14 * r:
         return "Assez Bien"
-    elif average < 16:
+    if average < 16 * r:
         return "Bien"
-    elif average < 18:
+    if average < 18 * r:
         return "Très Bien"
-    else:
-        return "Excellent"
+    return "Excellent"

@@ -5,24 +5,67 @@
 
 {% block content %}
 <div class="space-y-6">
-    <div>
-        <p class="mt-0.5 text-sm text-slate-600">Sélectionnez une épreuve pour saisir les notes</p>
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+            <p class="mt-0.5 text-sm text-slate-600">Tableau de bord de saisie : progression globale et accès par épreuve ou par élève.</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            {% if first_student %}
+            <a href="{% url 'exams:scores_by_student' first_student.pk %}" class="btn btn-outline btn-sm gap-1 border-[#0b5394]/40 text-[#073763]">
+                <i data-lucide="user" class="h-4 w-4"></i> Saisie par élève
+            </a>
+            {% endif %}
+            <a href="{% url 'exams:students_list' %}" class="btn btn-ghost btn-sm gap-1">
+                <i data-lucide="users" class="h-4 w-4"></i> Liste des élèves
+            </a>
+        </div>
     </div>
 
-    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {% for subject in subjects %}
-        <a href="{% url 'exams:scores_by_subject' subject.pk %}" class="card bg-base-100 shadow-sm border border-base-300 hover:shadow-md transition-shadow">
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-5">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <h2 class="font-semibold">Progression globale</h2>
+                <span class="text-sm font-medium text-base-content/70">{{ scores_entered }} / {{ slots_total }} notes · {{ global_pct }}%</span>
+            </div>
+            <progress class="progress progress-primary mt-3 h-3 w-full" value="{{ global_pct }}" max="100"></progress>
+            {% if not students_count %}
+            <p class="mt-3 text-sm text-warning">Ajoutez des élèves avant de saisir les notes.</p>
+            {% elif not subjects_cards %}
+            <p class="mt-3 text-sm text-warning">Ajoutez des épreuves pour commencer.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        {% for row in subjects_cards %}
+        <a href="{% url 'exams:scores_by_subject' row.subject.pk %}"
+           class="card border shadow-sm transition-shadow hover:shadow-md
+           {% if row.status == 'complete' %}border-success/40 bg-success/5{% elif row.status == 'partial' %}border-warning/50 bg-warning/5{% else %}border-base-300 bg-base-100{% endif %}">
             <div class="card-body p-5">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                        <i data-lucide="pen-line" class="w-5 h-5 text-primary"></i>
-                    </div>
+                <div class="flex items-start justify-between gap-2">
                     <div class="min-w-0">
-                        <h3 class="font-semibold truncate">{{ subject.name }}</h3>
-                        <p class="text-xs text-base-content/50">
-                            Coef. {{ subject.coefficient|default:"—" }} · Max {{ subject.max_score }}
+                        <h3 class="font-semibold truncate text-base">{{ row.subject.name }}</h3>
+                        <p class="text-xs text-base-content/60 mt-1">
+                            Coef. {{ row.subject.coefficient|default:"—" }} · Max {{ row.subject.max_score }}
                         </p>
                     </div>
+                    <span class="badge badge-sm shrink-0 {% if row.status == 'complete' %}badge-success{% elif row.status == 'partial' %}badge-warning{% else %}badge-ghost{% endif %}">
+                        {{ row.entered }}/{{ row.total }}
+                    </span>
+                </div>
+                <progress class="progress progress-secondary h-2 w-full mt-3" value="{{ row.pct }}" max="100"></progress>
+                <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-base-content/60">
+                    {% if row.avg is not None %}
+                    <span>Moy. <strong class="text-base-content">{{ row.avg }}</strong></span>
+                    <span>Min {{ row.min_s }}</span>
+                    <span>Max {{ row.max_s }}</span>
+                    {% else %}
+                    <span>Aucune note saisie</span>
+                    {% endif %}
+                </div>
+                <div class="mt-4 flex items-center gap-1 text-sm font-medium text-primary">
+                    <span>Saisir les notes</span>
+                    <i data-lucide="chevron-right" class="h-4 w-4"></i>
                 </div>
             </div>
         </a>

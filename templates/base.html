@@ -17,6 +17,18 @@
 </head>
 <body class="gexam-body min-h-screen antialiased text-slate-800">
 
+<dialog id="gexam-confirm" class="modal">
+    <div class="modal-box rounded-2xl border border-base-200 shadow-xl">
+        <h3 class="font-bold text-lg">Confirmation</h3>
+        <p class="py-4 text-sm text-base-content/80" id="gexam-confirm-msg"></p>
+        <div class="modal-action">
+            <button type="button" class="btn btn-ghost" id="gexam-confirm-cancel">Annuler</button>
+            <button type="button" class="btn btn-error" id="gexam-confirm-ok">Confirmer</button>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop"><button type="submit" class="cursor-default" aria-label="Fermer">close</button></form>
+</dialog>
+
 <div class="drawer lg:drawer-open">
     <input id="sidebar-toggle" type="checkbox" class="drawer-toggle" />
 
@@ -33,21 +45,22 @@
             </div>
             <div class="flex shrink-0 items-center gap-2">
                 {% if active_exam %}
-                <div class="badge hidden gap-1 border border-[#073763]/25 bg-[#073763]/5 px-3 py-3 text-[#073763] sm:flex">
+                <div class="tooltip tooltip-left font-mono hidden gap-1 border border-[#073763]/25 bg-[#073763]/5 px-3 py-3 text-[#073763] sm:flex" data-tip="Code d'accès de l'examen actif">
                     <i data-lucide="file-text" class="h-3.5 w-3.5"></i>
-                    <span class="font-mono text-xs font-semibold">{{ active_exam.code }}</span>
+                    <span class="text-xs font-semibold">{{ active_exam.code }}</span>
                 </div>
                 {% endif %}
             </div>
         </header>
 
         <main class="flex-1 p-4 md:p-6 lg:p-8 max-w-[1600px] w-full mx-auto fade-in">
+            {% block breadcrumbs %}{% endblock %}
             {% if messages %}
             <div class="mb-4 space-y-2">
                 {% for message in messages %}
                 <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-error{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %} shadow-sm">
                     <span>{{ message }}</span>
-                    <button onclick="this.parentElement.remove()" class="btn btn-ghost btn-xs">✕</button>
+                    <button type="button" onclick="this.parentElement.remove()" class="btn btn-ghost btn-xs" aria-label="Fermer l'alerte">✕</button>
                 </div>
                 {% endfor %}
             </div>
@@ -62,11 +75,82 @@
 </div>
 
 <script>
+(function () {
     lucide.createIcons();
-    // Auto-dismiss alerts after 5s
-    document.querySelectorAll('.alert').forEach(el => {
-        setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 5000);
+    document.querySelectorAll('.alert').forEach(function (el) {
+        setTimeout(function () {
+            el.style.opacity = '0';
+            setTimeout(function () { el.remove(); }, 300);
+        }, 5000);
     });
+
+    var dialog = document.getElementById("gexam-confirm");
+    var msgEl = document.getElementById("gexam-confirm-msg");
+    var okBtn = document.getElementById("gexam-confirm-ok");
+    var cancelBtn = document.getElementById("gexam-confirm-cancel");
+    var pendingResolver = null;
+
+    window.gexamConfirm = function (message) {
+        return new Promise(function (resolve) {
+            pendingResolver = resolve;
+            msgEl.textContent = message;
+            dialog.showModal();
+        });
+    };
+
+    function finish(result) {
+        if (pendingResolver) {
+            var r = pendingResolver;
+            pendingResolver = null;
+            r(result);
+        }
+        if (dialog.open) dialog.close();
+    }
+
+    dialog.addEventListener("close", function () {
+        if (pendingResolver) {
+            var r = pendingResolver;
+            pendingResolver = null;
+            r(false);
+        }
+    });
+
+    okBtn.addEventListener("click", function () { finish(true); });
+    cancelBtn.addEventListener("click", function () { finish(false); });
+    dialog.addEventListener("cancel", function (e) {
+        e.preventDefault();
+        finish(false);
+    });
+
+    document.addEventListener("submit", function (e) {
+        var form = e.target;
+        if (!(form instanceof HTMLFormElement)) return;
+        if (form.dataset.confirmed === "1") {
+            delete form.dataset.confirmed;
+            return;
+        }
+        var msg = form.getAttribute("data-confirm");
+        var sub = e.submitter;
+        if (sub && sub.getAttribute("data-confirm")) {
+            msg = sub.getAttribute("data-confirm");
+        }
+        if (!msg) return;
+        e.preventDefault();
+        window.gexamConfirm(msg).then(function (ok) {
+            if (!ok) return;
+            form.dataset.confirmed = "1";
+            if (sub && typeof form.requestSubmit === "function") {
+                try {
+                    form.requestSubmit(sub);
+                } catch (err) {
+                    form.submit();
+                }
+            } else {
+                form.submit();
+            }
+        });
+    }, true);
+})();
 </script>
 {% block extra_js %}{% endblock %}
 </body>

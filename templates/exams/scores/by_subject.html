@@ -1,62 +1,166 @@
 {% extends "base.html" %}
+{% load static l10n %}
 
 {% block title %}Notes — {{ subject.name }} — G-Exam{% endblock %}
 {% block page_title %}{{ subject.name }}{% endblock %}
 
 {% block content %}
-<div class="space-y-6">
-    <div>
-        <a href="{% url 'exams:scores' %}" class="btn btn-ghost btn-sm gap-1 mb-2">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i> Retour
-        </a>
-        <p class="mt-0.5 text-sm text-slate-600">
-            Coefficient : {{ subject.coefficient|default:"—" }} · Note maximale : {{ subject.max_score }}
-        </p>
+<div id="scores-entry-root" data-mode="subject" class="space-y-4">
+    <div class="-mx-4 px-4 py-3 scores-sticky-toolbar lg:-mx-8">
+        <div class="mx-auto flex max-w-[1600px] flex-col gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+                <a href="{% url 'exams:scores' %}" class="btn btn-ghost btn-sm gap-1">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Hub notes
+                </a>
+                {% if prev_subject_id %}
+                <a href="{% url 'exams:scores_by_subject' prev_subject_id %}?{% if q %}q={{ q|urlencode }}&{% endif %}{% if school_filter %}school={{ school_filter }}&{% endif %}{% if empty_only %}empty_only=1&{% endif %}page=1" class="btn btn-outline btn-sm gap-1">← Épreuve préc.</a>
+                {% endif %}
+                {% if next_subject_id %}
+                <a href="{% url 'exams:scores_by_subject' next_subject_id %}?{% if q %}q={{ q|urlencode }}&{% endif %}{% if school_filter %}school={{ school_filter }}&{% endif %}{% if empty_only %}empty_only=1&{% endif %}page=1" class="btn btn-outline btn-sm gap-1">Épreuve suiv. →</a>
+                {% endif %}
+            </div>
+            <div class="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                    <p class="text-sm text-slate-600">
+                        Coefficient : {{ subject.coefficient|default:"—" }} · Note max : {{ subject.max_score }} · Seuil examen : {{ passing_grade }}/{{ grading_scale }}
+                    </p>
+                    <p class="text-sm font-medium">
+                        <span id="scores-page-count">0 / 0 sur cette page</span>
+                        · Total épreuve : {{ entered_all }}/{{ students_count_all }}
+                    </p>
+                    <p id="scores-dirty-indicator" class="text-xs font-semibold text-warning hidden">Modifications non enregistrées</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    {% if toolbar_stats %}
+                    <span class="text-xs sm:text-sm text-base-content/70">
+                        Moy. <strong>{{ toolbar_stats.avg }}</strong> · Min {{ toolbar_stats.min }} · Max {{ toolbar_stats.max }}
+                    </span>
+                    {% endif %}
+                    <button type="button" id="btn-fill-absent-zero" class="btn btn-outline btn-sm gap-1">
+                        <i data-lucide="user-x" class="h-4 w-4"></i> 0 aux absents (page)
+                    </button>
+                    <button type="button" id="btn-clear-page-scores" class="btn btn-ghost btn-sm text-error gap-1">
+                        <i data-lucide="eraser" class="h-4 w-4"></i> Effacer page
+                    </button>
+                    <button type="submit" form="scores-by-subject-form" class="btn btn-primary btn-sm gap-1">
+                        <i data-lucide="save" class="w-4 h-4"></i> Enregistrer
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="card bg-base-100 shadow-sm border border-base-300">
         <div class="card-body p-4">
-            <form method="post">
-                {% csrf_token %}
-                <div class="overflow-x-auto">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>N° Candidat</th>
-                                <th>Nom</th>
-                                <th>Prénom</th>
-                                <th>Établissement</th>
-                                <th class="w-32">Note /{{ subject.max_score }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in students_with_scores %}
-                            <tr class="hover">
-                                <td><span class="font-mono text-sm badge badge-ghost badge-sm">{{ item.student.candidate_number }}</span></td>
-                                <td class="font-medium">{{ item.student.last_name }}</td>
-                                <td>{{ item.student.first_name }}</td>
-                                <td class="text-sm">{{ item.student.school.name }}</td>
-                                <td>
-                                    <input type="number"
-                                           name="score_{{ item.student.id }}"
-                                           value="{{ item.score }}"
-                                           step="0.25" min="0" max="{{ subject.max_score }}"
-                                           class="input input-bordered input-sm w-24"
-                                           placeholder="—">
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            <form method="get" class="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-end">
+                <div class="form-control flex-1 min-w-[200px]">
+                    <label class="label py-0"><span class="label-text text-xs font-semibold">Recherche</span></label>
+                    <input type="text" name="q" id="scores-subject-search" value="{{ q }}" placeholder="Nom, prénom, n° candidat…" autocomplete="off" class="input input-bordered input-sm w-full" aria-describedby="scores-live-filter-count">
                 </div>
-                <div class="mt-4 flex justify-end">
-                    <button type="submit" class="btn btn-primary gap-1">
-                        <i data-lucide="save" class="w-4 h-4"></i>
-                        Enregistrer les notes
-                    </button>
+                <div class="form-control w-full max-w-xs">
+                    <label class="label py-0"><span class="label-text text-xs font-semibold">Établissement</span></label>
+                    <select name="school" class="select select-bordered select-sm w-full">
+                        <option value="">Tous</option>
+                        {% for s in schools %}
+                        <option value="{{ s.id }}" {% if school_filter == s.id|stringformat:"s" %}selected{% endif %}>{{ s.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
+                <label class="label cursor-pointer gap-2 self-end">
+                    <input type="checkbox" name="empty_only" value="1" class="checkbox checkbox-sm checkbox-primary" {% if empty_only %}checked{% endif %}>
+                    <span class="label-text text-sm">Notes vides seulement</span>
+                </label>
+                <input type="hidden" name="page" value="1">
+                <button type="submit" class="btn btn-sm btn-primary gap-1">
+                    <i data-lucide="filter" class="h-4 w-4"></i> Filtrer
+                </button>
+                {% if q or school_filter or empty_only %}
+                <a href="{% url 'exams:scores_by_subject' subject.id %}" class="btn btn-sm btn-ghost">Réinitialiser</a>
+                {% endif %}
             </form>
+            <p id="scores-live-filter-count" class="text-xs text-base-content/60 mt-2 hidden min-h-[1.25rem]" aria-live="polite"></p>
+            <p class="text-xs text-base-content/50 mt-1">Filtrage instantané sur la page courante pendant la frappe · « Filtrer » interroge tout l’examen (pagination).</p>
+            {% if absent_students_no_score %}
+            <div class="alert alert-warning mt-3 text-sm py-2">
+                <i data-lucide="user-x" class="h-4 w-4"></i>
+                <span>{{ absent_students_no_score }} absent(s) sans note sur cette épreuve — utilisez « 0 aux absents ».</span>
+            </div>
+            {% endif %}
         </div>
     </div>
+
+    <form id="scores-by-subject-form" method="post" class="card bg-base-100 shadow-sm border border-base-300">
+        {% csrf_token %}
+        <input type="hidden" name="page" value="{{ page_obj.number }}">
+        <input type="hidden" name="q" value="{{ q }}">
+        <input type="hidden" name="school" value="{{ school_filter }}">
+        <input type="hidden" name="empty_only" value="{% if empty_only %}1{% endif %}">
+
+        <div class="scores-table-wrap rounded-b-2xl">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>N° Candidat</th>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Établissement</th>
+                        <th>Statut</th>
+                        <th class="w-36">Note /{{ subject.max_score }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in students_with_scores %}
+                    <tr class="hover score-row" data-candidate="{{ item.student.candidate_number|lower }}" data-last="{{ item.student.last_name|lower }}" data-first="{{ item.student.first_name|lower }}">
+                        <td><span class="font-mono text-xs badge badge-ghost badge-sm">{{ item.student.candidate_number }}</span></td>
+                        <td class="font-medium">{{ item.student.last_name }}</td>
+                        <td>{{ item.student.first_name }}</td>
+                        <td class="text-sm max-w-[140px] truncate" title="{{ item.student.school.name }}">{{ item.student.school.name }}</td>
+                        <td>
+                            {% if item.student.is_absent %}
+                            <span class="badge badge-error badge-sm gap-1"><i data-lucide="user-x" class="h-3 w-3"></i> Absent</span>
+                            {% else %}
+                            <span class="badge badge-ghost badge-sm">Présent</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <input type="number"
+                                   name="score_{{ item.student.id }}"
+                                   value="{% if item.score != '' %}{{ item.score|unlocalize }}{% endif %}"
+                                   step="0.25" min="0" max="{{ subject.max_score }}"
+                                   data-absent="{% if item.student.is_absent %}1{% else %}0{% endif %}"
+                                   data-passing-threshold="{{ scaled_passing_threshold }}"
+                                   class="input input-bordered input-sm w-full max-w-[7rem] score-input"
+                                   placeholder="—"
+                                   autocomplete="off"
+                                   aria-label="Note pour {{ item.student.last_name }} {{ item.student.first_name }}">
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-10 text-base-content/50">Aucun élève sur cette page (ajustez les filtres).</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if paginator.num_pages > 1 %}
+        <div class="flex flex-wrap items-center justify-between gap-2 border-t border-base-200 p-4">
+            <span class="text-sm text-base-content/60">Page {{ page_obj.number }} / {{ paginator.num_pages }}</span>
+            <div class="join">
+                {% if page_obj.has_previous %}
+                <a class="join-item btn btn-sm" href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if school_filter %}&school={{ school_filter }}{% endif %}{% if empty_only %}&empty_only=1{% endif %}">Précédent</a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                <a class="join-item btn btn-sm" href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if school_filter %}&school={{ school_filter }}{% endif %}{% if empty_only %}&empty_only=1{% endif %}">Suivant</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </form>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/scores.js' %}"></script>
 {% endblock %}

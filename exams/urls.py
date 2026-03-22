@@ -19,6 +19,7 @@ urlpatterns = [
     # Exam setup
     path("exam/setup/", views.exam_setup_view, name="exam_setup"),
     path("exam/create/", views.exam_create_view, name="exam_create"),
+    path("exam/generate-code/", views.generate_exam_code_view, name="generate_exam_code"),
     path("exam/import/", views.exam_import_view, name="exam_import"),
     path("exam/<int:pk>/edit/", views.exam_edit_view, name="exam_edit"),
     path("exam/<int:pk>/lock/", views.exam_lock_view, name="exam_lock"),
@@ -44,6 +45,7 @@ urlpatterns = [
 
     # Scores
     path("scores/", views.scores_view, name="scores"),
+    path("scores/student/<int:student_id>/", views.scores_by_student_view, name="scores_by_student"),
     path("scores/subject/<int:subject_id>/", views.scores_by_subject_view, name="scores_by_subject"),
 
     # Rankings
@@ -62,6 +64,7 @@ urlpatterns = [
     path("exports/", views.exports_view, name="exports"),
     path("exports/pdf/<str:doc_type>/", views.export_pdf_view, name="export_pdf"),
     path("exports/excel/<str:doc_type>/", views.export_excel_view, name="export_excel"),
+    path("exports/json/<str:doc_type>/", views.export_json_view, name="export_json"),
 
     # Settings
     path("settings/", views.settings_view, name="settings"),

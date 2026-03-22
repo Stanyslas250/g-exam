@@ -1,4 +1,6 @@
 from django import forms
+from django.core.exceptions import ValidationError
+
 from .models import Exam, School, Student, Subject, Score, Room
 
 
@@ -10,13 +12,55 @@ TEXTAREA_CSS = "textarea textarea-bordered w-full"
 class ExamForm(forms.ModelForm):
     class Meta:
         model = Exam
-        fields = ["name", "code", "year", "passing_grade"]
+        fields = [
+            "name",
+            "code",
+            "year",
+            "exam_type",
+            "description",
+            "start_date",
+            "end_date",
+            "location",
+            "grading_scale",
+            "passing_grade",
+        ]
         widgets = {
             "name": forms.TextInput(attrs={"class": INPUT_CSS, "placeholder": "Nom de l'examen"}),
             "code": forms.TextInput(attrs={"class": INPUT_CSS, "placeholder": "Ex: BAC2025-CM"}),
             "year": forms.NumberInput(attrs={"class": INPUT_CSS}),
+            "exam_type": forms.Select(attrs={"class": SELECT_CSS}),
+            "description": forms.Textarea(attrs={"class": TEXTAREA_CSS, "rows": 3, "placeholder": "Description (optionnelle)"}),
+            "start_date": forms.DateInput(attrs={"type": "date", "class": INPUT_CSS}),
+            "end_date": forms.DateInput(attrs={"type": "date", "class": INPUT_CSS}),
+            "location": forms.TextInput(attrs={"class": INPUT_CSS, "placeholder": "Lieu ou centre d'examen"}),
+            "grading_scale": forms.NumberInput(attrs={
+                "class": INPUT_CSS,
+                "step": "0.5",
+                "min": "0.5",
+                "placeholder": "Ex. 20, 10, 50…",
+            }),
             "passing_grade": forms.NumberInput(attrs={"class": INPUT_CSS, "step": "0.5"}),
         }
+
+    def clean_grading_scale(self):
+        scale = self.cleaned_data.get("grading_scale")
+        if scale is not None and scale <= 0:
+            raise ValidationError("Le barème doit être strictement positif.")
+        return scale
+
+    def clean(self):
+        cleaned = super().clean()
+        scale = cleaned.get("grading_scale")
+        pg = cleaned.get("passing_grade")
+        if scale is not None and pg is not None:
+            if pg < 0:
+                self.add_error("passing_grade", "Le seuil ne peut pas être négatif.")
+            elif pg > scale:
+                self.add_error(
+                    "passing_grade",
+                    f"Le seuil ne peut pas dépasser le barème ({scale}).",
+                )
+        return cleaned
 
 
 class SchoolForm(forms.ModelForm):
@@ -47,6 +91,9 @@ class SubjectForm(forms.ModelForm):
     class Meta:
         model = Subject
         fields = ["name", "coefficient", "max_score"]
+        help_texts = {
+            "max_score": "Plafond de la note pour cette épreuve (peut différer du barème global de l’examen).",
+        }
         widgets = {
             "name": forms.TextInput(attrs={"class": INPUT_CSS, "placeholder": "Nom de l'épreuve"}),
             "coefficient": forms.NumberInput(attrs={"class": INPUT_CSS, "step": "0.5", "placeholder": "Optionnel"}),

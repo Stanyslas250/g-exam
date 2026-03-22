@@ -6,12 +6,27 @@
 {% block content %}
 <div class="space-y-6">
     <div>
-        <p class="mt-0.5 text-sm text-slate-600">Exportez les résultats en PDF ou Excel</p>
+        <p class="mt-0.5 text-sm text-slate-600">Téléchargez les résultats, relevés par élève, données par établissement ou une sauvegarde JSON complète.</p>
     </div>
 
-    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Results PDF -->
-        <div class="card bg-base-100 shadow-sm border border-base-300">
+    {% if export_warning %}
+    <div class="alert alert-warning shadow-sm">
+        <i data-lucide="alert-triangle" class="h-5 w-5 shrink-0"></i>
+        <span>{{ export_warning }}</span>
+    </div>
+    {% elif scores_complete and slots_total %}
+    <div class="alert alert-success shadow-sm">
+        <i data-lucide="check-circle" class="h-5 w-5 shrink-0"></i>
+        <span>Toutes les notes sont saisies ({{ scores_count }}/{{ slots_total }}).</span>
+    </div>
+    {% endif %}
+
+    <div class="rounded-xl border border-base-200 bg-base-100/80 p-4 text-sm text-base-content/70">
+        <p><strong class="text-base-content">Aperçu :</strong> {{ students_count }} élève{{ students_count|pluralize }}, {{ subjects_count }} épreuve{{ subjects_count|pluralize }}, {{ scores_count }} note{{ scores_count|pluralize }} enregistrée{{ scores_count|pluralize }} sur {{ slots_total }} emplacements possibles.</p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div class="stat-card card bg-base-100 shadow-sm border border-base-300 transition-shadow hover:shadow-md">
             <div class="card-body p-5">
                 <div class="flex items-center gap-3 mb-3">
                     <div class="w-10 h-10 rounded-lg bg-error/10 flex items-center justify-center shrink-0">
@@ -19,17 +34,33 @@
                     </div>
                     <div>
                         <h3 class="font-semibold">Résultats PDF</h3>
-                        <p class="text-xs text-base-content/50">Classement complet avec mentions</p>
+                        <p class="text-xs text-base-content/50">Tableau complet : rang, moyenne, mention</p>
                     </div>
                 </div>
                 <a href="{% url 'exams:export_pdf' 'results' %}" class="btn btn-sm btn-outline btn-error gap-1 w-full">
-                    <i data-lucide="download" class="w-4 h-4"></i> Télécharger PDF
+                    <i data-lucide="download" class="w-4 h-4"></i> Télécharger
                 </a>
             </div>
         </div>
 
-        <!-- Results Excel -->
-        <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="stat-card card bg-base-100 shadow-sm border border-base-300 transition-shadow hover:shadow-md">
+            <div class="card-body p-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                        <i data-lucide="files" class="w-5 h-5 text-primary"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold">Relevés par élève (PDF)</h3>
+                        <p class="text-xs text-base-content/50">Une page par candidat avec notes par épreuve</p>
+                    </div>
+                </div>
+                <a href="{% url 'exams:export_pdf' 'transcripts' %}" class="btn btn-sm btn-outline btn-primary gap-1 w-full">
+                    <i data-lucide="download" class="w-4 h-4"></i> Télécharger
+                </a>
+            </div>
+        </div>
+
+        <div class="stat-card card bg-base-100 shadow-sm border border-base-300 transition-shadow hover:shadow-md">
             <div class="card-body p-5">
                 <div class="flex items-center gap-3 mb-3">
                     <div class="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center shrink-0">
@@ -37,17 +68,33 @@
                     </div>
                     <div>
                         <h3 class="font-semibold">Résultats Excel</h3>
-                        <p class="text-xs text-base-content/50">Données exploitables dans un tableur</p>
+                        <p class="text-xs text-base-content/50">Feuille unique, traitement tableur</p>
                     </div>
                 </div>
                 <a href="{% url 'exams:export_excel' 'results' %}" class="btn btn-sm btn-outline btn-success gap-1 w-full">
-                    <i data-lucide="download" class="w-4 h-4"></i> Télécharger Excel
+                    <i data-lucide="download" class="w-4 h-4"></i> Télécharger
                 </a>
             </div>
         </div>
 
-        <!-- Rooms PDF -->
-        <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="stat-card card bg-base-100 shadow-sm border border-base-300 transition-shadow hover:shadow-md">
+            <div class="card-body p-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0">
+                        <i data-lucide="building-2" class="w-5 h-5 text-secondary"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold">Excel par établissement</h3>
+                        <p class="text-xs text-base-content/50">Un onglet par établissement</p>
+                    </div>
+                </div>
+                <a href="{% url 'exams:export_excel' 'by_school' %}" class="btn btn-sm btn-outline btn-secondary gap-1 w-full">
+                    <i data-lucide="download" class="w-4 h-4"></i> Télécharger
+                </a>
+            </div>
+        </div>
+
+        <div class="stat-card card bg-base-100 shadow-sm border border-base-300 transition-shadow hover:shadow-md">
             <div class="card-body p-5">
                 <div class="flex items-center gap-3 mb-3">
                     <div class="w-10 h-10 rounded-lg bg-info/10 flex items-center justify-center shrink-0">
@@ -55,11 +102,28 @@
                     </div>
                     <div>
                         <h3 class="font-semibold">Répartition salles PDF</h3>
-                        <p class="text-xs text-base-content/50">Plan d'affectation des candidats</p>
+                        <p class="text-xs text-base-content/50">Places et listes par salle</p>
                     </div>
                 </div>
                 <a href="{% url 'exams:export_pdf' 'rooms' %}" class="btn btn-sm btn-outline btn-info gap-1 w-full">
-                    <i data-lucide="download" class="w-4 h-4"></i> Télécharger PDF
+                    <i data-lucide="download" class="w-4 h-4"></i> Télécharger
+                </a>
+            </div>
+        </div>
+
+        <div class="stat-card card bg-base-100 shadow-sm border border-base-300 transition-shadow hover:shadow-md">
+            <div class="card-body p-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center shrink-0">
+                        <i data-lucide="database" class="w-5 h-5 text-warning"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold">Sauvegarde JSON</h3>
+                        <p class="text-xs text-base-content/50">Examen, élèves, notes, salles — pour archivage ou import</p>
+                    </div>
+                </div>
+                <a href="{% url 'exams:export_json' 'backup' %}" class="btn btn-sm btn-outline btn-warning gap-1 w-full">
+                    <i data-lucide="download" class="w-4 h-4"></i> Télécharger
                 </a>
             </div>
         </div>

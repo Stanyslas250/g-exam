@@ -46,7 +46,7 @@
                                     <i data-lucide="pencil" class="w-3.5 h-3.5"></i> Modifier
                                 </a>
                                 <form method="post" action="{% url 'exams:school_delete' school.pk %}"
-                                      onsubmit="return confirm('Supprimer cet établissement ?')">
+                                      data-confirm="Supprimer cet établissement ?">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-ghost btn-xs text-error gap-1">
                                         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Supprimer

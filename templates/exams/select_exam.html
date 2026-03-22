@@ -33,7 +33,7 @@
                     <i data-lucide="key-round" class="w-5 h-5 text-primary"></i>
                     Accès par code
                 </h2>
-                <p class="text-sm text-base-content/60 mb-4">Entrez le code d'accès de l'examen</p>
+                <p class="text-sm text-base-content/60 mb-4">Entrez le code d'accès communiqué par l'administrateur (sensible à la casse selon la saisie ; la sélection dans la liste ci-dessous fonctionne sans le code).</p>
 
                 <form method="post" class="space-y-4">
                     {% csrf_token %}
@@ -98,7 +98,14 @@
                         {% for exam in exams %}
                         <tr>
                             <td class="font-medium">{{ exam.name }}</td>
-                            <td><span class="badge badge-outline badge-sm font-mono">{{ exam.code }}</span></td>
+                            <td>
+                                <div class="flex flex-wrap items-center gap-1">
+                                    <span class="tooltip font-mono text-xs font-semibold" data-tip="Code d'accès">{{ exam.code }}</span>
+                                    <button type="button" class="btn btn-ghost btn-xs gap-0 px-1 copy-code-btn" data-code="{{ exam.code }}" aria-label="Copier le code {{ exam.code }}">
+                                        <i data-lucide="copy" class="h-3.5 w-3.5"></i>
+                                    </button>
+                                </div>
+                            </td>
                             <td>{{ exam.year }}</td>
                             <td>
                                 {% if exam.is_locked %}
@@ -142,6 +149,14 @@
     </div>
 </div>
 
-<script>lucide.createIcons();</script>
+<script>
+lucide.createIcons();
+document.querySelectorAll(".copy-code-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+        var c = btn.getAttribute("data-code");
+        if (c && navigator.clipboard) navigator.clipboard.writeText(c);
+    });
+});
+</script>
 </body>
 </html>
