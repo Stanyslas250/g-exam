@@ -6,6 +6,9 @@ from . import grading_views
 app_name = "exams"
 
 urlpatterns = [
+    # Landing page publique (page d'accueil)
+    path("", views.landing_view, name="landing"),
+
     # Auth
     path("login/", auth_views.LoginView.as_view(template_name="registration/login.html"), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
@@ -25,7 +28,7 @@ urlpatterns = [
     path("switch-exam/", views.switch_exam_view, name="switch_exam"),
 
     # Dashboard
-    path("", views.dashboard_view, name="dashboard"),
+    path("dashboard/", views.dashboard_view, name="dashboard"),
 
     # Exam setup
     path("exam/setup/", views.exam_setup_view, name="exam_setup"),

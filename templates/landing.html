@@ -1,0 +1,1519 @@
+{% load static humanize %}
+<!doctype html>
+<html lang="fr" data-theme="corporate">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      G-Exam — La plateforme tout-en-un de gestion d'examens scolaires
+    </title>
+    <meta
+      name="description"
+      content="G-Exam centralise et automatise la gestion des examens scolaires : inscriptions, saisie des notes, classements, statistiques, répartition en salles et exports PDF/Excel."
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+
+    <style>
+      :root {
+        --brand: #073763;
+        --brand-2: #0b5394;
+        --brand-3: #1d6cb8;
+      }
+
+      body.gexam-landing {
+        font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+        color: #0f172a;
+        background: #ffffff;
+      }
+
+      .hero-bg {
+        background:
+          radial-gradient(
+            ellipse 80% 60% at 85% 0%,
+            rgba(29, 108, 184, 0.18),
+            transparent 55%
+          ),
+          radial-gradient(
+            ellipse 70% 55% at 10% 10%,
+            rgba(7, 55, 99, 0.14),
+            transparent 50%
+          ),
+          radial-gradient(
+            ellipse 60% 40% at 50% 100%,
+            rgba(11, 83, 148, 0.08),
+            transparent 55%
+          ),
+          linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+      }
+
+      .hero-grid {
+        background-image:
+          linear-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+        background-size: 48px 48px;
+        mask-image: radial-gradient(
+          ellipse 60% 60% at 50% 30%,
+          #000 40%,
+          transparent 80%
+        );
+        -webkit-mask-image: radial-gradient(
+          ellipse 60% 60% at 50% 30%,
+          #000 40%,
+          transparent 80%
+        );
+      }
+
+      .brand-gradient {
+        background: linear-gradient(135deg, #0b5394 0%, #073763 100%);
+      }
+
+      .brand-text {
+        background: linear-gradient(
+          135deg,
+          #073763 0%,
+          #0b5394 50%,
+          #1d6cb8 100%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .glass {
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+      }
+
+      .feature-card {
+        transition:
+          transform 0.25s ease,
+          box-shadow 0.25s ease,
+          border-color 0.25s ease;
+      }
+      .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 18px 50px -20px rgba(7, 55, 99, 0.25);
+        border-color: rgba(11, 83, 148, 0.35);
+      }
+
+      .icon-tile {
+        background: linear-gradient(
+          135deg,
+          rgba(11, 83, 148, 0.12),
+          rgba(7, 55, 99, 0.08)
+        );
+        color: #073763;
+      }
+
+      .cta-btn {
+        background: linear-gradient(135deg, #0b5394 0%, #073763 100%);
+        color: #fff;
+        font-weight: 600;
+        box-shadow: 0 10px 30px -8px rgba(7, 55, 99, 0.45);
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease,
+          filter 0.2s ease;
+      }
+      .cta-btn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.06);
+        box-shadow: 0 14px 36px -8px rgba(7, 55, 99, 0.55);
+      }
+
+      .ghost-btn {
+        background: #ffffff;
+        color: #0f172a;
+        border: 1px solid rgba(15, 23, 42, 0.12);
+        transition:
+          border-color 0.2s ease,
+          background 0.2s ease,
+          transform 0.2s ease;
+      }
+      .ghost-btn:hover {
+        border-color: rgba(7, 55, 99, 0.45);
+        background: #f8fafc;
+        transform: translateY(-2px);
+      }
+
+      .chip {
+        background: rgba(11, 83, 148, 0.08);
+        color: #073763;
+        border: 1px solid rgba(11, 83, 148, 0.18);
+      }
+
+      .mock-window {
+        background: #ffffff;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        box-shadow:
+          0 40px 80px -30px rgba(7, 55, 99, 0.35),
+          0 18px 40px -18px rgba(15, 23, 42, 0.12);
+        border-radius: 1.25rem;
+        overflow: hidden;
+      }
+
+      .mock-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+      }
+
+      .step-num {
+        background: linear-gradient(135deg, #0b5394, #073763);
+        color: #fff;
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        box-shadow: 0 8px 20px -6px rgba(7, 55, 99, 0.45);
+      }
+
+      .marquee {
+        mask-image: linear-gradient(
+          90deg,
+          transparent,
+          #000 10%,
+          #000 90%,
+          transparent
+        );
+        -webkit-mask-image: linear-gradient(
+          90deg,
+          transparent,
+          #000 10%,
+          #000 90%,
+          transparent
+        );
+      }
+
+      @keyframes floaty {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+      .floaty {
+        animation: floaty 6s ease-in-out infinite;
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(18px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .rise {
+        animation: rise 0.6s ease-out both;
+      }
+      .rise-delay-1 {
+        animation-delay: 0.08s;
+      }
+      .rise-delay-2 {
+        animation-delay: 0.16s;
+      }
+      .rise-delay-3 {
+        animation-delay: 0.24s;
+      }
+
+      .nav-link {
+        color: #334155;
+        font-weight: 500;
+        transition: color 0.15s ease;
+      }
+      .nav-link:hover {
+        color: #073763;
+      }
+
+      /* Réduit la bordure daisyUI par défaut pour les cartes */
+      .card-soft {
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        border-radius: 1rem;
+        background: #ffffff;
+      }
+    </style>
+  </head>
+  <body class="gexam-landing antialiased">
+    <!-- ───────── NAVBAR ───────── -->
+    <header class="sticky top-0 z-40 w-full border-b border-slate-200/70 glass">
+      <div
+        class="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
+      >
+        <a href="#" class="flex items-center gap-2.5">
+          <span
+            class="flex h-9 w-9 items-center justify-center rounded-xl brand-gradient text-white shadow-md shadow-[#073763]/25"
+          >
+            <i data-lucide="graduation-cap" class="h-5 w-5"></i>
+          </span>
+          <span class="text-lg font-bold tracking-tight text-slate-900"
+            >G-Exam</span
+          >
+        </a>
+
+        <nav class="hidden items-center gap-8 md:flex">
+          <a href="#features" class="nav-link text-sm">Fonctionnalités</a>
+          <a href="#workflow" class="nav-link text-sm">Comment ça marche</a>
+          <a href="#preview" class="nav-link text-sm">Aperçu</a>
+          <a href="#pricing" class="nav-link text-sm">Tarifs</a>
+          <a href="#faq" class="nav-link text-sm">FAQ</a>
+        </nav>
+
+        <div class="flex items-center gap-2">
+          <a
+            href="{% url 'exams:login' %}"
+            class="hidden h-10 items-center rounded-lg px-4 text-sm font-semibold text-slate-700 hover:text-[#073763] sm:inline-flex"
+          >
+            Se connecter
+          </a>
+          <a
+            href="{% url 'exams:login' %}"
+            class="cta-btn inline-flex h-10 items-center gap-2 rounded-lg px-4 text-sm"
+          >
+            <i data-lucide="log-in" class="h-4 w-4"></i>
+            Commencer
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- ───────── HERO ───────── -->
+    <section class="relative overflow-hidden hero-bg">
+      <div class="absolute inset-0 hero-grid pointer-events-none"></div>
+
+      <div
+        class="relative mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28"
+      >
+        <div class="grid items-center gap-14 lg:grid-cols-12">
+          <!-- Texte -->
+          <div class="lg:col-span-6">
+            <span
+              class="chip inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold rise"
+            >
+              <span class="relative flex h-2 w-2">
+                <span
+                  class="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#0b5394] opacity-60"
+                ></span>
+                <span
+                  class="relative inline-flex h-2 w-2 rounded-full bg-[#0b5394]"
+                ></span>
+              </span>
+              Plateforme moderne &middot; 100 % hébergée
+            </span>
+
+            <h1
+              class="mt-6 text-4xl font-extrabold leading-[1.05] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl rise rise-delay-1"
+            >
+              La gestion d'examens scolaires,
+              <span class="brand-text">enfin simple et fiable.</span>
+            </h1>
+
+            <p
+              class="mt-6 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg rise rise-delay-2"
+            >
+              G-Exam centralise vos candidats, la saisie des notes, les
+              classements, les statistiques et la répartition en salles. Gagnez
+              des jours de travail, supprimez les erreurs et publiez des
+              résultats irréprochables.
+            </p>
+
+            <div
+              class="mt-8 flex flex-wrap items-center gap-3 rise rise-delay-3"
+            >
+              <a
+                href="{% url 'exams:login' %}"
+                class="cta-btn inline-flex h-12 items-center gap-2 rounded-xl px-6 text-base"
+              >
+                <i data-lucide="rocket" class="h-4 w-4"></i>
+                Accéder à la plateforme
+              </a>
+              <a
+                href="#features"
+                class="ghost-btn inline-flex h-12 items-center gap-2 rounded-xl px-6 text-base font-semibold"
+              >
+                <i data-lucide="play" class="h-4 w-4"></i>
+                Découvrir les fonctionnalités
+              </a>
+            </div>
+
+            <!-- Mini trust row -->
+            <div
+              class="mt-10 grid max-w-lg grid-cols-3 gap-4 rise rise-delay-3"
+            >
+              <div>
+                <div class="text-2xl font-bold text-slate-900">-80%</div>
+                <div class="text-xs text-slate-500">Temps de traitement</div>
+              </div>
+              <div>
+                <div class="text-2xl font-bold text-slate-900">100%</div>
+                <div class="text-xs text-slate-500">Calculs vérifiés</div>
+              </div>
+              <div>
+                <div class="text-2xl font-bold text-slate-900">0 erreur</div>
+                <div class="text-xs text-slate-500">Sur les moyennes</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mock visuel -->
+          <div class="relative lg:col-span-6">
+            <div class="mock-window floaty">
+              <!-- Barre fenêtre -->
+              <div
+                class="flex items-center gap-2 border-b border-slate-200/70 bg-slate-50/70 px-4 py-3"
+              >
+                <span class="mock-dot bg-red-400"></span>
+                <span class="mock-dot bg-yellow-400"></span>
+                <span class="mock-dot bg-green-400"></span>
+                <div
+                  class="ml-3 flex items-center gap-2 rounded-md bg-white px-3 py-1 text-xs text-slate-500 ring-1 ring-slate-200"
+                >
+                  <i data-lucide="lock" class="h-3 w-3 text-slate-400"></i>
+                  app.g-exam.local/dashboard
+                </div>
+              </div>
+
+              <!-- Contenu mock -->
+              <div class="grid grid-cols-12 gap-0">
+                <!-- sidebar mock -->
+                <aside class="col-span-3 bg-[#0c1222] p-4 text-slate-300">
+                  <div class="mb-6 flex items-center gap-2">
+                    <span
+                      class="flex h-7 w-7 items-center justify-center rounded-lg brand-gradient text-white"
+                    >
+                      <i data-lucide="graduation-cap" class="h-4 w-4"></i>
+                    </span>
+                    <span class="text-sm font-semibold text-white">G-Exam</span>
+                  </div>
+                  <ul class="space-y-1 text-xs">
+                    <li
+                      class="rounded-md bg-[#0b5394]/30 px-2 py-1.5 text-white"
+                    >
+                      Tableau de bord
+                    </li>
+                    <li class="px-2 py-1.5">Élèves</li>
+                    <li class="px-2 py-1.5">Épreuves</li>
+                    <li class="px-2 py-1.5">Notes</li>
+                    <li class="px-2 py-1.5">Classements</li>
+                    <li class="px-2 py-1.5">Statistiques</li>
+                    <li class="px-2 py-1.5">Exports</li>
+                  </ul>
+                </aside>
+
+                <!-- main mock -->
+                <div class="col-span-9 bg-white p-5">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <div
+                        class="text-[11px] font-semibold uppercase tracking-wider text-slate-400"
+                      >
+                        Session BEPC 2026
+                      </div>
+                      <div class="text-lg font-bold text-slate-900">
+                        Vue d'ensemble
+                      </div>
+                    </div>
+                    <span
+                      class="chip rounded-full px-3 py-1 text-[11px] font-semibold"
+                      >Code : EXM-7F2A</span
+                    >
+                  </div>
+
+                  <div class="mt-4 grid grid-cols-3 gap-3">
+                    <div
+                      class="rounded-xl border border-slate-200 bg-slate-50/60 p-3"
+                    >
+                      <div class="flex items-center justify-between">
+                        <span
+                          class="text-[10px] font-semibold uppercase tracking-wider text-slate-500"
+                          >Candidats</span
+                        >
+                        <i
+                          data-lucide="users"
+                          class="h-3.5 w-3.5 text-slate-400"
+                        ></i>
+                      </div>
+                      <div class="mt-1 text-xl font-bold text-slate-900">
+                        1 284
+                      </div>
+                    </div>
+                    <div
+                      class="rounded-xl border border-slate-200 bg-slate-50/60 p-3"
+                    >
+                      <div class="flex items-center justify-between">
+                        <span
+                          class="text-[10px] font-semibold uppercase tracking-wider text-slate-500"
+                          >Moyenne</span
+                        >
+                        <i
+                          data-lucide="trending-up"
+                          class="h-3.5 w-3.5 text-slate-400"
+                        ></i>
+                      </div>
+                      <div class="mt-1 text-xl font-bold text-slate-900">
+                        12,37 / 20
+                      </div>
+                    </div>
+                    <div
+                      class="rounded-xl border border-slate-200 bg-slate-50/60 p-3"
+                    >
+                      <div class="flex items-center justify-between">
+                        <span
+                          class="text-[10px] font-semibold uppercase tracking-wider text-slate-500"
+                          >Réussite</span
+                        >
+                        <i
+                          data-lucide="award"
+                          class="h-3.5 w-3.5 text-slate-400"
+                        ></i>
+                      </div>
+                      <div class="mt-1 text-xl font-bold text-slate-900">
+                        74,2 %
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- pseudo-chart -->
+                  <div class="mt-4 rounded-xl border border-slate-200 p-3">
+                    <div class="mb-3 flex items-center justify-between">
+                      <span class="text-xs font-semibold text-slate-600"
+                        >Répartition des moyennes</span
+                      >
+                      <span class="text-[10px] text-slate-400"
+                        >20 tranches</span
+                      >
+                    </div>
+                    <div class="flex h-24 items-end gap-1.5">
+                      {% for h in "345689CABDEFC98765"|make_list %}
+                      <div
+                        class="flex-1 rounded-t-md"
+                        style="height: {{ forloop.counter|add:20 }}%; background: linear-gradient(180deg, #1d6cb8, #073763);"
+                      ></div>
+                      {% endfor %}
+                    </div>
+                  </div>
+
+                  <!-- rows -->
+                  <div class="mt-3 space-y-1.5">
+                    <div
+                      class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs"
+                    >
+                      <span class="font-medium text-slate-700"
+                        >NGUEMA Ariane</span
+                      >
+                      <span class="font-bold text-emerald-600">17,42</span>
+                    </div>
+                    <div
+                      class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs"
+                    >
+                      <span class="font-medium text-slate-700"
+                        >MVONDO Yann</span
+                      >
+                      <span class="font-bold text-emerald-600">16,95</span>
+                    </div>
+                    <div
+                      class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs"
+                    >
+                      <span class="font-medium text-slate-700"
+                        >TCHINDA Laure</span
+                      >
+                      <span class="font-bold text-[#0b5394]">15,20</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- badges flottants -->
+            <div
+              class="absolute -left-6 top-8 hidden rounded-xl border border-slate-200 bg-white p-3 shadow-xl shadow-slate-900/10 sm:block floaty"
+              style="animation-delay: 1s"
+            >
+              <div class="flex items-center gap-3">
+                <span
+                  class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600"
+                >
+                  <i data-lucide="check-circle-2" class="h-5 w-5"></i>
+                </span>
+                <div>
+                  <div class="text-xs font-semibold text-slate-900">
+                    Notes verrouillées
+                  </div>
+                  <div class="text-[10px] text-slate-500">
+                    Traçabilité complète
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="absolute -right-4 bottom-6 hidden rounded-xl border border-slate-200 bg-white p-3 shadow-xl shadow-slate-900/10 sm:block floaty"
+              style="animation-delay: 2s"
+            >
+              <div class="flex items-center gap-3">
+                <span
+                  class="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0b5394]/10 text-[#0b5394]"
+                >
+                  <i data-lucide="file-spreadsheet" class="h-5 w-5"></i>
+                </span>
+                <div>
+                  <div class="text-xs font-semibold text-slate-900">
+                    Export Excel
+                  </div>
+                  <div class="text-[10px] text-slate-500">En un clic</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── LOGOS / TRUST STRIP ───────── -->
+    <section class="border-y border-slate-200/70 bg-white">
+      <div class="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <p
+          class="text-center text-xs font-semibold uppercase tracking-[0.2em] text-slate-400"
+        >
+          Pensé pour les établissements, centres d'examen & inspections
+          pédagogiques
+        </p>
+        <div
+          class="marquee mt-6 grid grid-cols-2 items-center gap-6 text-slate-400 sm:grid-cols-3 md:grid-cols-6"
+        >
+          <div class="flex items-center justify-center gap-2">
+            <i data-lucide="school" class="h-5 w-5"></i
+            ><span class="text-sm font-semibold">Lycées</span>
+          </div>
+          <div class="flex items-center justify-center gap-2">
+            <i data-lucide="library" class="h-5 w-5"></i
+            ><span class="text-sm font-semibold">Collèges</span>
+          </div>
+          <div class="flex items-center justify-center gap-2">
+            <i data-lucide="building-2" class="h-5 w-5"></i
+            ><span class="text-sm font-semibold">Inspections</span>
+          </div>
+          <div class="flex items-center justify-center gap-2">
+            <i data-lucide="landmark" class="h-5 w-5"></i
+            ><span class="text-sm font-semibold">Centres d'examen</span>
+          </div>
+          <div class="flex items-center justify-center gap-2">
+            <i data-lucide="graduation-cap" class="h-5 w-5"></i
+            ><span class="text-sm font-semibold">Universités</span>
+          </div>
+          <div class="flex items-center justify-center gap-2">
+            <i data-lucide="briefcase" class="h-5 w-5"></i
+            ><span class="text-sm font-semibold">Secrétariats</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── FEATURES ───────── -->
+    <section id="features" class="relative bg-slate-50/60 py-20 sm:py-24">
+      <div class="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-3xl text-center">
+          <span
+            class="chip inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
+          >
+            <i data-lucide="sparkles" class="h-3.5 w-3.5"></i>
+            Fonctionnalités clés
+          </span>
+          <h2
+            class="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl"
+          >
+            Tout ce qu'il faut pour organiser un examen,
+            <span class="brand-text">de A à Z</span>.
+          </h2>
+          <p class="mt-4 text-base text-slate-600">
+            Une plateforme unique pour remplacer les tableurs dispersés, les
+            erreurs de saisie et les heures passées à compiler des résultats
+            manuellement.
+          </p>
+        </div>
+
+        <div class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <!-- Card -->
+          <div class="feature-card card-soft p-6">
+            <div
+              class="icon-tile flex h-11 w-11 items-center justify-center rounded-xl"
+            >
+              <i data-lucide="file-text" class="h-5 w-5"></i>
+            </div>
+            <h3 class="mt-5 text-lg font-bold text-slate-900">
+              Sessions d'examen
+            </h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">
+              Créez autant de sessions que nécessaire, configurez le seuil de
+              réussite et verrouillez les notes quand tout est validé.
+            </p>
+          </div>
+
+          <div class="feature-card card-soft p-6">
+            <div
+              class="icon-tile flex h-11 w-11 items-center justify-center rounded-xl"
+            >
+              <i data-lucide="users" class="h-5 w-5"></i>
+            </div>
+            <h3 class="mt-5 text-lg font-bold text-slate-900">
+              Candidats & établissements
+            </h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">
+              Import Excel en un clic, recherche instantanée, fiche élève
+              complète, gestion multi-établissements.
+            </p>
+          </div>
+
+          <div class="feature-card card-soft p-6">
+            <div
+              class="icon-tile flex h-11 w-11 items-center justify-center rounded-xl"
+            >
+              <i data-lucide="pencil-line" class="h-5 w-5"></i>
+            </div>
+            <h3 class="mt-5 text-lg font-bold text-slate-900">
+              Saisie des notes
+            </h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">
+              Interface pensée pour la vitesse : saisie au kilomètre, validation
+              en temps réel, sauvegarde automatique.
+            </p>
+          </div>
+
+          <div class="feature-card card-soft p-6">
+            <div
+              class="icon-tile flex h-11 w-11 items-center justify-center rounded-xl"
+            >
+              <i data-lucide="calculator" class="h-5 w-5"></i>
+            </div>
+            <h3 class="mt-5 text-lg font-bold text-slate-900">
+              Calculs automatiques
+            </h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">
+              Moyennes pondérées, coefficients par matière, taux de réussite et
+              mentions générés en temps réel.
+            </p>
+          </div>
+
+          <div class="feature-card card-soft p-6">
+            <div
+              class="icon-tile flex h-11 w-11 items-center justify-center rounded-xl"
+            >
+              <i data-lucide="trophy" class="h-5 w-5"></i>
+            </div>
+            <h3 class="mt-5 text-lg font-bold text-slate-900">
+              Classements intelligents
+            </h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">
+              Classements d'élèves et d'établissements, gestion des ex æquo,
+              filtres avancés.
+            </p>
+          </div>
+
+          <div class="feature-card card-soft p-6">
+            <div
+              class="icon-tile flex h-11 w-11 items-center justify-center rounded-xl"
+            >
+              <i data-lucide="bar-chart-3" class="h-5 w-5"></i>
+            </div>
+            <h3 class="mt-5 text-lg font-bold text-slate-900">
+              Statistiques visuelles
+            </h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">
+              Distribution des notes, comparaisons par matière et par école,
+              tendances et graphiques interactifs.
+            </p>
+          </div>
+
+          <div class="feature-card card-soft p-6">
+            <div
+              class="icon-tile flex h-11 w-11 items-center justify-center rounded-xl"
+            >
+              <i data-lucide="layout-grid" class="h-5 w-5"></i>
+            </div>
+            <h3 class="mt-5 text-lg font-bold text-slate-900">
+              Répartition en salles
+            </h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">
+              Dispatch alphabétique, par établissement ou mixte, avec impression
+              des listes prête à afficher.
+            </p>
+          </div>
+
+          <div class="feature-card card-soft p-6">
+            <div
+              class="icon-tile flex h-11 w-11 items-center justify-center rounded-xl"
+            >
+              <i data-lucide="download" class="h-5 w-5"></i>
+            </div>
+            <h3 class="mt-5 text-lg font-bold text-slate-900">
+              Exports PDF & Excel
+            </h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">
+              Bulletins, relevés, classements, statistiques : générez les
+              documents officiels en quelques clics.
+            </p>
+          </div>
+
+          <div class="feature-card card-soft p-6">
+            <div
+              class="icon-tile flex h-11 w-11 items-center justify-center rounded-xl"
+            >
+              <i data-lucide="shield-check" class="h-5 w-5"></i>
+            </div>
+            <h3 class="mt-5 text-lg font-bold text-slate-900">
+              Sécurité & traçabilité
+            </h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">
+              Accès correcteur par code, journalisation des modifications de
+              notes, verrouillage définitif.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── WORKFLOW ───────── -->
+    <section id="workflow" class="relative bg-white py-20 sm:py-24">
+      <div class="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-3xl text-center">
+          <span
+            class="chip inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
+          >
+            <i data-lucide="workflow" class="h-3.5 w-3.5"></i>
+            Comment ça marche
+          </span>
+          <h2
+            class="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl"
+          >
+            Quatre étapes pour publier vos résultats
+          </h2>
+          <p class="mt-4 text-base text-slate-600">
+            De l'import des candidats à la diffusion du procès-verbal, un
+            parcours linéaire, clair et sans friction.
+          </p>
+        </div>
+
+        <div class="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div class="card-soft p-6">
+            <div class="flex items-center gap-3">
+              <span class="step-num text-sm">1</span>
+              <i data-lucide="upload-cloud" class="h-5 w-5 text-[#0b5394]"></i>
+            </div>
+            <h3 class="mt-4 text-lg font-bold text-slate-900">Importez</h3>
+            <p class="mt-2 text-sm text-slate-600">
+              Créez la session et importez vos candidats, établissements et
+              matières depuis Excel ou JSON.
+            </p>
+          </div>
+          <div class="card-soft p-6">
+            <div class="flex items-center gap-3">
+              <span class="step-num text-sm">2</span>
+              <i data-lucide="edit-3" class="h-5 w-5 text-[#0b5394]"></i>
+            </div>
+            <h3 class="mt-4 text-lg font-bold text-slate-900">Saisissez</h3>
+            <p class="mt-2 text-sm text-slate-600">
+              Les correcteurs saisissent les notes depuis une interface
+              optimisée, avec validation en temps réel.
+            </p>
+          </div>
+          <div class="card-soft p-6">
+            <div class="flex items-center gap-3">
+              <span class="step-num text-sm">3</span>
+              <i data-lucide="lock" class="h-5 w-5 text-[#0b5394]"></i>
+            </div>
+            <h3 class="mt-4 text-lg font-bold text-slate-900">Verrouillez</h3>
+            <p class="mt-2 text-sm text-slate-600">
+              L'administrateur verrouille la session. Les moyennes, classements
+              et statistiques sont figés.
+            </p>
+          </div>
+          <div class="card-soft p-6">
+            <div class="flex items-center gap-3">
+              <span class="step-num text-sm">4</span>
+              <i data-lucide="send" class="h-5 w-5 text-[#0b5394]"></i>
+            </div>
+            <h3 class="mt-4 text-lg font-bold text-slate-900">Diffusez</h3>
+            <p class="mt-2 text-sm text-slate-600">
+              Exportez les relevés, bulletins et procès-verbaux officiels en PDF
+              ou Excel.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── PREVIEW / SPLIT ───────── -->
+    <section
+      id="preview"
+      class="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white py-20 sm:py-24"
+    >
+      <div class="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="grid items-center gap-14 lg:grid-cols-2">
+          <div>
+            <span
+              class="chip inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
+            >
+              <i data-lucide="monitor-dot" class="h-3.5 w-3.5"></i>
+              Interface
+            </span>
+            <h2
+              class="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl"
+            >
+              Une expérience pensée pour la
+              <span class="brand-text">rapidité</span>.
+            </h2>
+            <p class="mt-4 text-base text-slate-600">
+              Navigation claire, tableaux triables, filtres instantanés,
+              raccourcis clavier pour la saisie : chaque détail a été conçu pour
+              faire gagner du temps aux équipes pédagogiques.
+            </p>
+
+            <ul class="mt-8 space-y-4">
+              <li class="flex items-start gap-3">
+                <span
+                  class="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-700"
+                >
+                  <i data-lucide="check" class="h-3.5 w-3.5"></i>
+                </span>
+                <div>
+                  <div class="font-semibold text-slate-900">
+                    Saisie au kilomètre
+                  </div>
+                  <div class="text-sm text-slate-600">
+                    Tab, Entrée, flèches : enchaînez les notes sans jamais
+                    lâcher le clavier.
+                  </div>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <span
+                  class="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-700"
+                >
+                  <i data-lucide="check" class="h-3.5 w-3.5"></i>
+                </span>
+                <div>
+                  <div class="font-semibold text-slate-900">
+                    Recherche globale
+                  </div>
+                  <div class="text-sm text-slate-600">
+                    Retrouvez un candidat, un établissement ou une épreuve en
+                    une fraction de seconde.
+                  </div>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <span
+                  class="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-700"
+                >
+                  <i data-lucide="check" class="h-3.5 w-3.5"></i>
+                </span>
+                <div>
+                  <div class="font-semibold text-slate-900">
+                    Historique des notes
+                  </div>
+                  <div class="text-sm text-slate-600">
+                    Chaque modification est tracée : qui, quand, ancienne et
+                    nouvelle valeur.
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div class="relative">
+            <!-- Mock secondaire : tableau de saisie -->
+            <div class="mock-window">
+              <div
+                class="flex items-center gap-2 border-b border-slate-200/70 bg-slate-50/70 px-4 py-3"
+              >
+                <span class="mock-dot bg-red-400"></span>
+                <span class="mock-dot bg-yellow-400"></span>
+                <span class="mock-dot bg-green-400"></span>
+                <div
+                  class="ml-3 flex items-center gap-2 rounded-md bg-white px-3 py-1 text-xs text-slate-500 ring-1 ring-slate-200"
+                >
+                  <i
+                    data-lucide="pencil-line"
+                    class="h-3 w-3 text-slate-400"
+                  ></i>
+                  Saisie — Mathématiques
+                </div>
+              </div>
+              <div class="p-5">
+                <div class="mb-3 flex items-center justify-between">
+                  <div>
+                    <div
+                      class="text-xs font-semibold uppercase tracking-wider text-slate-400"
+                    >
+                      Épreuve
+                    </div>
+                    <div class="text-base font-bold text-slate-900">
+                      Mathématiques · coef. 4 · /20
+                    </div>
+                  </div>
+                  <span
+                    class="chip rounded-full px-3 py-1 text-[11px] font-semibold"
+                    >En cours</span
+                  >
+                </div>
+                <div class="overflow-hidden rounded-xl border border-slate-200">
+                  <table class="w-full text-sm">
+                    <thead
+                      class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500"
+                    >
+                      <tr>
+                        <th class="px-3 py-2 text-left">Candidat</th>
+                        <th class="px-3 py-2 text-left">École</th>
+                        <th class="px-3 py-2 text-right">Note</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-slate-700">
+                      <tr>
+                        <td class="px-3 py-2">NGUEMA Ariane</td>
+                        <td class="px-3 py-2 text-slate-500">Lycée Mbele</td>
+                        <td class="px-3 py-2 text-right">
+                          <span
+                            class="rounded-md bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-700"
+                            >17,5</span
+                          >
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="px-3 py-2">MVONDO Yann</td>
+                        <td class="px-3 py-2 text-slate-500">Lycée Calasanz</td>
+                        <td class="px-3 py-2 text-right">
+                          <span
+                            class="rounded-md bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-700"
+                            >16,0</span
+                          >
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="px-3 py-2">TCHINDA Laure</td>
+                        <td class="px-3 py-2 text-slate-500">Lycée Bessieux</td>
+                        <td class="px-3 py-2 text-right">
+                          <span
+                            class="rounded-md bg-[#0b5394]/10 px-2 py-1 text-xs font-bold text-[#0b5394]"
+                            >14,5</span
+                          >
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="px-3 py-2">ABADA Jean-Paul</td>
+                        <td class="px-3 py-2 text-slate-500">
+                          Lycée Sainte Marie
+                        </td>
+                        <td class="px-3 py-2 text-right">
+                          <span
+                            class="rounded-md bg-red-50 px-2 py-1 text-xs font-bold text-red-600"
+                            >7,5</span
+                          >
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="px-3 py-2">ESSOMBA Léa</td>
+                        <td class="px-3 py-2 text-slate-500">
+                          Lycée Immaculée
+                        </td>
+                        <td class="px-3 py-2 text-right">
+                          <span
+                            class="rounded-md bg-[#0b5394]/10 px-2 py-1 text-xs font-bold text-[#0b5394]"
+                            >13,0</span
+                          >
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div
+                  class="mt-3 flex items-center justify-between text-xs text-slate-500"
+                >
+                  <span>Sauvegarde automatique activée</span>
+                  <span
+                    class="flex items-center gap-1.5 font-semibold text-emerald-600"
+                    ><i data-lucide="check-circle-2" class="h-3.5 w-3.5"></i
+                    >Synchronisé</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── PRICING ───────── -->
+    <section id="pricing" class="bg-white py-20 sm:py-24">
+      <div class="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+          <span
+            class="chip inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
+          >
+            <i data-lucide="credit-card" class="h-3.5 w-3.5"></i>
+            Tarifs
+          </span>
+          <h2
+            class="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl"
+          >
+            Un forfait pour chaque besoin
+          </h2>
+          <p class="mx-auto mt-4 max-w-2xl text-base text-slate-600">
+            Choisissez le plan qui correspond à votre structure. Upgrade ou
+            downgrade à tout moment.
+          </p>
+        </div>
+
+        <div class="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {% for plan in pricing_plans %}
+          <div
+            class="relative flex flex-col rounded-2xl border {% if plan.is_featured %}border-[#0b5394] shadow-xl shadow-[#073763]/10 ring-2 ring-[#0b5394]/20{% else %}border-slate-200 shadow-md{% endif %} bg-white p-7 transition hover:-translate-y-1 hover:shadow-lg"
+          >
+            {% if plan.is_featured %}
+            <span
+              class="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full brand-gradient px-4 py-1 text-xs font-bold text-white shadow"
+              >Populaire</span
+            >
+            {% endif %}
+
+            <h3 class="text-xl font-extrabold text-slate-900">
+              {{ plan.name }}
+            </h3>
+            <p class="mt-1 text-sm text-slate-500">{{ plan.tagline }}</p>
+
+            <div class="mt-6 flex items-baseline gap-1">
+              {% if plan.price_fcfa %}
+              <span class="text-4xl font-extrabold tracking-tight text-slate-900"
+                >{{ plan.price_fcfa|intcomma }}</span
+              >
+              <span class="text-base font-semibold text-slate-500"
+                >FCFA<span class="text-xs"> / {{ plan.get_billing_period_display|lower }}</span></span
+              >
+              {% else %}
+              <span class="text-4xl font-extrabold tracking-tight text-slate-900"
+                >Gratuit</span
+              >
+              {% endif %}
+            </div>
+
+            <ul class="mt-7 flex-1 space-y-3">
+              {% for feat in plan.features %}
+              <li class="flex items-start gap-2.5 text-sm text-slate-600">
+                <i
+                  data-lucide="check"
+                  class="mt-0.5 h-4 w-4 shrink-0 {% if plan.is_featured %}text-[#0b5394]{% else %}text-emerald-500{% endif %}"
+                ></i>
+                {{ feat }}
+              </li>
+              {% endfor %}
+            </ul>
+
+            <a
+              href="mailto:contact@g-exam.com?subject=Demande%20d'accès%20—%20{{ plan.name|urlencode }}"
+              class="mt-8 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold transition {% if plan.is_featured %}brand-gradient text-white shadow-lg shadow-[#073763]/25 hover:-translate-y-0.5{% else %}border border-slate-200 bg-white text-slate-700 hover:border-[#0b5394]/40 hover:text-[#073763]{% endif %}"
+            >
+              <i data-lucide="mail" class="h-4 w-4"></i>
+              Demander l'accès
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+
+        <p class="mt-10 text-center text-sm text-slate-500">
+          Besoin d'un plan personnalisé ?
+          <a
+            href="mailto:contact@g-exam.com?subject=Plan%20personnalisé"
+            class="font-semibold text-[#0b5394] hover:underline"
+            >Contactez-nous</a
+          >.
+        </p>
+      </div>
+    </section>
+
+    <!-- ───────── STATS CTA ───────── -->
+    <section class="bg-white py-20 sm:py-24">
+      <div class="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div
+          class="relative overflow-hidden rounded-3xl brand-gradient px-6 py-14 text-white shadow-2xl shadow-[#073763]/30 sm:px-12 sm:py-16"
+        >
+          <div
+            class="absolute inset-0 opacity-20"
+            style="
+              background-image:
+                radial-gradient(
+                  circle at 20% 20%,
+                  rgba(255, 255, 255, 0.25),
+                  transparent 40%
+                ),
+                radial-gradient(
+                  circle at 80% 80%,
+                  rgba(255, 255, 255, 0.18),
+                  transparent 40%
+                );
+            "
+          ></div>
+
+          <div class="relative grid items-center gap-10 lg:grid-cols-2">
+            <div>
+              <h2 class="text-3xl font-extrabold leading-tight sm:text-4xl">
+                Prêt à simplifier votre prochaine session d'examen ?
+              </h2>
+              <p class="mt-4 max-w-xl text-white/80">
+                Connectez-vous à votre espace G-Exam et reprenez le contrôle de
+                vos résultats. Si vous êtes correcteur, accédez directement à
+                votre session avec votre code.
+              </p>
+
+              <div class="mt-8 flex flex-wrap gap-3">
+                <a
+                  href="{% url 'exams:login' %}"
+                  class="inline-flex h-12 items-center gap-2 rounded-xl bg-white px-6 text-sm font-bold text-[#073763] shadow-lg transition hover:-translate-y-0.5 hover:bg-slate-100"
+                >
+                  <i data-lucide="log-in" class="h-4 w-4"></i>
+                  Espace administrateur
+                </a>
+                <a
+                  href="{% url 'exams:login' %}"
+                  class="inline-flex h-12 items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-6 text-sm font-bold text-white backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/20"
+                >
+                  <i data-lucide="key-round" class="h-4 w-4"></i>
+                  Accès correcteur
+                </a>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 sm:gap-6">
+              <div
+                class="rounded-2xl bg-white/10 p-5 ring-1 ring-white/20 backdrop-blur"
+              >
+                <div class="text-3xl font-extrabold">+12 000</div>
+                <div
+                  class="mt-1 text-xs uppercase tracking-wider text-white/70"
+                >
+                  Candidats traités
+                </div>
+              </div>
+              <div
+                class="rounded-2xl bg-white/10 p-5 ring-1 ring-white/20 backdrop-blur"
+              >
+                <div class="text-3xl font-extrabold">97 %</div>
+                <div
+                  class="mt-1 text-xs uppercase tracking-wider text-white/70"
+                >
+                  Satisfaction équipes
+                </div>
+              </div>
+              <div
+                class="rounded-2xl bg-white/10 p-5 ring-1 ring-white/20 backdrop-blur"
+              >
+                <div class="text-3xl font-extrabold">24 / 7</div>
+                <div
+                  class="mt-1 text-xs uppercase tracking-wider text-white/70"
+                >
+                  Disponibilité
+                </div>
+              </div>
+              <div
+                class="rounded-2xl bg-white/10 p-5 ring-1 ring-white/20 backdrop-blur"
+              >
+                <div class="text-3xl font-extrabold">&lt; 1 s</div>
+                <div
+                  class="mt-1 text-xs uppercase tracking-wider text-white/70"
+                >
+                  Calculs instantanés
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── FAQ ───────── -->
+    <section id="faq" class="bg-slate-50/60 py-20 sm:py-24">
+      <div class="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+          <span
+            class="chip inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
+          >
+            <i data-lucide="help-circle" class="h-3.5 w-3.5"></i>
+            Questions fréquentes
+          </span>
+          <h2
+            class="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl"
+          >
+            Tout ce que vous voulez savoir
+          </h2>
+        </div>
+
+        <div class="mt-10 space-y-3">
+          <details class="group card-soft p-5 open:shadow-md">
+            <summary
+              class="flex cursor-pointer list-none items-center justify-between text-left"
+            >
+              <span class="font-semibold text-slate-900"
+                >Est-ce que G-Exam fonctionne pour plusieurs sessions
+                simultanément ?</span
+              >
+              <i
+                data-lucide="chevron-down"
+                class="h-4 w-4 text-slate-400 transition group-open:rotate-180"
+              ></i>
+            </summary>
+            <p class="mt-3 text-sm leading-relaxed text-slate-600">
+              Oui. Vous pouvez créer autant de sessions que nécessaire et
+              basculer instantanément de l'une à l'autre. Chaque session
+              conserve ses propres candidats, matières, notes et statistiques.
+            </p>
+          </details>
+
+          <details class="group card-soft p-5 open:shadow-md">
+            <summary
+              class="flex cursor-pointer list-none items-center justify-between text-left"
+            >
+              <span class="font-semibold text-slate-900"
+                >Comment les correcteurs saisissent-ils les notes ?</span
+              >
+              <i
+                data-lucide="chevron-down"
+                class="h-4 w-4 text-slate-400 transition group-open:rotate-180"
+              ></i>
+            </summary>
+            <p class="mt-3 text-sm leading-relaxed text-slate-600">
+              Chaque correcteur accède à sa session via un code d'accès et ne
+              voit que les matières qui lui sont assignées. La saisie est
+              validée en temps réel et sauvegardée automatiquement.
+            </p>
+          </details>
+
+          <details class="group card-soft p-5 open:shadow-md">
+            <summary
+              class="flex cursor-pointer list-none items-center justify-between text-left"
+            >
+              <span class="font-semibold text-slate-900"
+                >Puis-je importer mes candidats depuis Excel ?</span
+              >
+              <i
+                data-lucide="chevron-down"
+                class="h-4 w-4 text-slate-400 transition group-open:rotate-180"
+              ></i>
+            </summary>
+            <p class="mt-3 text-sm leading-relaxed text-slate-600">
+              Absolument. G-Exam accepte l'import Excel (.xlsx) et JSON. Un
+              modèle prêt à l'emploi est fourni, et l'import vérifie
+              automatiquement la cohérence des données.
+            </p>
+          </details>
+
+          <details class="group card-soft p-5 open:shadow-md">
+            <summary
+              class="flex cursor-pointer list-none items-center justify-between text-left"
+            >
+              <span class="font-semibold text-slate-900"
+                >Les notes peuvent-elles être modifiées après validation ?</span
+              >
+              <i
+                data-lucide="chevron-down"
+                class="h-4 w-4 text-slate-400 transition group-open:rotate-180"
+              ></i>
+            </summary>
+            <p class="mt-3 text-sm leading-relaxed text-slate-600">
+              Avant verrouillage, oui — chaque modification est tracée dans
+              l'historique. Après verrouillage d'une session, les notes
+              deviennent définitivement immuables pour garantir l'intégrité des
+              résultats.
+            </p>
+          </details>
+
+          <details class="group card-soft p-5 open:shadow-md">
+            <summary
+              class="flex cursor-pointer list-none items-center justify-between text-left"
+            >
+              <span class="font-semibold text-slate-900"
+                >Quels documents puis-je exporter ?</span
+              >
+              <i
+                data-lucide="chevron-down"
+                class="h-4 w-4 text-slate-400 transition group-open:rotate-180"
+              ></i>
+            </summary>
+            <p class="mt-3 text-sm leading-relaxed text-slate-600">
+              Listes de candidats, relevés de notes, bulletins individuels,
+              classements, statistiques, procès-verbaux, listes de salles — en
+              PDF ou Excel, prêts à être imprimés ou diffusés.
+            </p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── FINAL CTA ───────── -->
+    <section class="bg-white py-20 sm:py-24">
+      <div class="mx-auto w-full max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+        <h2
+          class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-5xl"
+        >
+          Donnez à vos examens la
+          <span class="brand-text">rigueur qu'ils méritent</span>.
+        </h2>
+        <p class="mx-auto mt-5 max-w-2xl text-base text-slate-600 sm:text-lg">
+          Rejoignez les établissements qui ont choisi G-Exam pour organiser,
+          suivre et publier leurs résultats avec une fiabilité irréprochable.
+        </p>
+        <div class="mt-10 flex flex-wrap justify-center gap-3">
+          <a
+            href="{% url 'exams:login' %}"
+            class="cta-btn inline-flex h-12 items-center gap-2 rounded-xl px-8 text-base"
+          >
+            <i data-lucide="rocket" class="h-4 w-4"></i>
+            Se connecter maintenant
+          </a>
+          <a
+            href="#features"
+            class="ghost-btn inline-flex h-12 items-center gap-2 rounded-xl px-8 text-base font-semibold"
+          >
+            <i data-lucide="arrow-up" class="h-4 w-4"></i>
+            Revoir les fonctionnalités
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── FOOTER ───────── -->
+    <footer class="border-t border-slate-200/70 bg-[#0c1222] text-slate-300">
+      <div class="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+        <div class="grid gap-10 md:grid-cols-4">
+          <div class="md:col-span-2">
+            <div class="flex items-center gap-2.5">
+              <span
+                class="flex h-9 w-9 items-center justify-center rounded-xl brand-gradient text-white shadow-md"
+              >
+                <i data-lucide="graduation-cap" class="h-5 w-5"></i>
+              </span>
+              <span class="text-lg font-bold text-white">G-Exam</span>
+            </div>
+            <p class="mt-4 max-w-md text-sm text-slate-400">
+              La plateforme tout-en-un de gestion d'examens scolaires. Pensée
+              pour les établissements, les centres d'examen et les inspections
+              pédagogiques.
+            </p>
+          </div>
+
+          <div>
+            <div class="text-xs font-bold uppercase tracking-wider text-white">
+              Produit
+            </div>
+            <ul class="mt-4 space-y-2 text-sm">
+              <li>
+                <a
+                  href="#features"
+                  class="text-slate-400 transition hover:text-white"
+                  >Fonctionnalités</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#workflow"
+                  class="text-slate-400 transition hover:text-white"
+                  >Comment ça marche</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#preview"
+                  class="text-slate-400 transition hover:text-white"
+                  >Aperçu</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#pricing"
+                  class="text-slate-400 transition hover:text-white"
+                  >Tarifs</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#faq"
+                  class="text-slate-400 transition hover:text-white"
+                  >FAQ</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="text-xs font-bold uppercase tracking-wider text-white">
+              Accès
+            </div>
+            <ul class="mt-4 space-y-2 text-sm">
+              <li>
+                <a
+                  href="{% url 'exams:login' %}"
+                  class="text-slate-400 transition hover:text-white"
+                  >Espace administrateur</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{% url 'exams:login' %}"
+                  class="text-slate-400 transition hover:text-white"
+                  >Accès correcteur</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div
+          class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-xs text-slate-500 sm:flex-row"
+        >
+          <span>&copy; {% now "Y" %} G-Exam — Tous droits réservés.</span>
+          <span class="flex items-center gap-1.5">
+            <i data-lucide="shield-check" class="h-3.5 w-3.5"></i>
+            Plateforme sécurisée & traçable
+          </span>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      lucide.createIcons();
+
+      // Smooth scroll sur les ancres internes
+      document.querySelectorAll('a[href^="#"]').forEach(function (link) {
+        link.addEventListener("click", function (e) {
+          var href = link.getAttribute("href");
+          if (href.length > 1) {
+            var target = document.querySelector(href);
+            if (target) {
+              e.preventDefault();
+              target.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

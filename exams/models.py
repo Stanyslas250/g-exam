@@ -412,3 +412,79 @@ class RoomAssignment(models.Model):
 
     def __str__(self):
         return f"{self.student} → {self.room}"
+
+
+class Plan(models.Model):
+    BILLING_FREE = "FREE"
+    BILLING_MONTHLY = "MONTHLY"
+    BILLING_YEARLY = "YEARLY"
+    BILLING_CUSTOM = "CUSTOM"
+
+    BILLING_CHOICES = [
+        (BILLING_FREE, "Gratuit"),
+        (BILLING_MONTHLY, "Par mois"),
+        (BILLING_YEARLY, "Par an"),
+        (BILLING_CUSTOM, "Sur devis"),
+    ]
+
+    name = models.CharField(max_length=100, unique=True, verbose_name="Nom du forfait")
+    slug = models.SlugField(max_length=100, unique=True)
+    tagline = models.CharField(max_length=200, blank=True, default="", verbose_name="Accroche")
+    description = models.TextField(blank=True, default="", verbose_name="Description")
+    price_fcfa = models.PositiveIntegerField(
+        null=True, blank=True, verbose_name="Prix (FCFA)",
+        help_text="Laisser vide pour gratuit ou sur devis.",
+    )
+    billing_period = models.CharField(
+        max_length=16, choices=BILLING_CHOICES, default=BILLING_MONTHLY, verbose_name="Période de facturation",
+    )
+    max_exams = models.PositiveIntegerField(
+        null=True, blank=True, verbose_name="Nb max d'examens",
+        help_text="Vide = illimité.",
+    )
+    max_students_per_exam = models.PositiveIntegerField(
+        null=True, blank=True, verbose_name="Nb max de candidats / examen",
+        help_text="Vide = illimité.",
+    )
+    max_teachers = models.PositiveIntegerField(
+        null=True, blank=True, verbose_name="Nb max de correcteurs",
+        help_text="Vide = illimité.",
+    )
+    features = models.JSONField(
+        default=list, blank=True, verbose_name="Fonctionnalités incluses",
+        help_text="Liste de chaînes affichées sur la page tarifs.",
+    )
+    is_active = models.BooleanField(default=True, verbose_name="Actif")
+    is_featured = models.BooleanField(default=False, verbose_name="Mis en avant")
+    sort_order = models.PositiveIntegerField(default=0, verbose_name="Ordre d'affichage")
+
+    class Meta:
+        ordering = ["sort_order", "price_fcfa"]
+        verbose_name = "Forfait"
+        verbose_name_plural = "Forfaits"
+
+    def __str__(self):
+        return self.name
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile", verbose_name="Utilisateur",
+    )
+    plan = models.ForeignKey(
+        Plan, on_delete=models.SET_NULL, null=True, blank=True, related_name="subscribers", verbose_name="Forfait",
+    )
+    organization = models.CharField(max_length=255, blank=True, default="", verbose_name="Organisation")
+    phone = models.CharField(max_length=32, blank=True, default="", verbose_name="Téléphone")
+    subscription_start = models.DateField(null=True, blank=True, verbose_name="Début abonnement")
+    subscription_end = models.DateField(null=True, blank=True, verbose_name="Fin abonnement")
+    is_subscription_active = models.BooleanField(default=True, verbose_name="Abonnement actif")
+    notes = models.TextField(blank=True, default="", verbose_name="Notes")
+
+    class Meta:
+        verbose_name = "Profil utilisateur"
+        verbose_name_plural = "Profils utilisateurs"
+
+    def __str__(self):
+        plan_name = self.plan.name if self.plan else "Aucun forfait"
+        return f"{self.user.username} — {plan_name}"

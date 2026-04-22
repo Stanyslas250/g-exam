@@ -1,8 +1,8 @@
-from .models import Exam, School, Teacher
+from .models import Exam, School, Teacher, UserProfile
 
 
 def active_exam(request):
-    """Inject the active exam and sidebar counts into all template contexts."""
+    """Inject the active exam, sidebar counts, and user plan into all template contexts."""
     exam = None
     exam_id = request.session.get("active_exam_id") if hasattr(request, "session") else None
     if exam_id:
@@ -22,4 +22,15 @@ def active_exam(request):
             "teachers": Teacher.objects.count(),
         }
 
-    return {"active_exam": exam, "sidebar_counts": sidebar_counts}
+    current_user_plan = None
+    if hasattr(request, "user") and request.user.is_authenticated:
+        try:
+            current_user_plan = request.user.profile.plan
+        except UserProfile.DoesNotExist:
+            pass
+
+    return {
+        "active_exam": exam,
+        "sidebar_counts": sidebar_counts,
+        "current_user_plan": current_user_plan,
+    }

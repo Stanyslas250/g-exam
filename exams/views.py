@@ -12,7 +12,7 @@ from django.db.models import Avg, Count, Q
 from django.views.decorators.http import require_POST
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
-from .models import Exam, School, Student, Subject, Score, Room, RoomAssignment, ScoreHistory
+from .models import Exam, School, Student, Subject, Score, Room, RoomAssignment, ScoreHistory, Plan
 from .forms import (
     ExamForm, SchoolForm, StudentForm, SubjectForm, ScoreForm,
     RoomForm, ExcelImportForm, ExamCodeForm,
@@ -103,6 +103,16 @@ def _build_students_data(exam):
 
     ranked = rank_students(students_data)
     return ranked
+
+
+# ──────────────────────────────────────────────
+# Landing page (publique)
+# ──────────────────────────────────────────────
+
+def landing_view(request):
+    """Page d'accueil publique présentant l'application G-Exam."""
+    pricing_plans = Plan.objects.filter(is_active=True).order_by("sort_order", "price_fcfa")
+    return render(request, "landing.html", {"pricing_plans": pricing_plans})
 
 
 # ──────────────────────────────────────────────

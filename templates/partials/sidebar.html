@@ -143,7 +143,9 @@
                 </div>
                 <div class="min-w-0 flex-1">
                     <p class="truncate text-sm font-semibold text-white">{{ request.user.username }}</p>
-                    <p class="text-xs text-slate-500">Administrateur</p>
+                    <p class="text-xs text-slate-500">
+                        {% if current_user_plan %}{{ current_user_plan.name }}{% else %}Administrateur{% endif %}
+                    </p>
                 </div>
                 <form method="post" action="{% url 'exams:logout' %}">
                     {% csrf_token %}

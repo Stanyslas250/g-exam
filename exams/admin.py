@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import User
 
 from .models import (
     Exam,
@@ -12,6 +14,8 @@ from .models import (
     SubjectAssignment,
     ScoreHistory,
     Harmonization,
+    Plan,
+    UserProfile,
 )
 
 
@@ -136,3 +140,38 @@ class HarmonizationAdmin(admin.ModelAdmin):
     list_display = ("subject", "exam", "adjustment_type", "value", "is_applied", "applied_at", "applied_by")
     list_filter = ("is_applied", "adjustment_type", "exam")
     readonly_fields = ("applied_at",)
+
+
+# ── Plans & Profils ──────────────────────────────
+
+@admin.register(Plan)
+class PlanAdmin(admin.ModelAdmin):
+    list_display = ("name", "price_fcfa", "billing_period", "max_exams", "is_featured", "is_active", "sort_order")
+    list_editable = ("is_featured", "is_active", "sort_order")
+    list_filter = ("is_active", "billing_period")
+    search_fields = ("name", "slug")
+    prepopulated_fields = {"slug": ("name",)}
+
+
+class UserProfileInline(admin.StackedInline):
+    model = UserProfile
+    can_delete = False
+    verbose_name_plural = "Profil & Forfait"
+    fk_name = "user"
+    fields = ("plan", "organization", "phone", "subscription_start", "subscription_end", "is_subscription_active", "notes")
+
+
+admin.site.unregister(User)
+
+
+@admin.register(User)
+class UserAdmin(BaseUserAdmin):
+    inlines = [UserProfileInline]
+
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ("user", "plan", "organization", "subscription_start", "subscription_end", "is_subscription_active")
+    list_filter = ("plan", "is_subscription_active")
+    search_fields = ("user__username", "user__email", "organization")
+    autocomplete_fields = ("user", "plan")
