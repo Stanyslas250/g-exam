@@ -2,9 +2,9 @@
 Crée (ou promeut) un superutilisateur pour l’admin Django.
 
 Usage non interactif (recommandé en déploiement) :
-  set SUPER_ADMIN_USERNAME=admin
-  set SUPER_ADMIN_EMAIL=admin@example.com
-  set SUPER_ADMIN_PASSWORD=mot_de_passe_securise
+  set SUPER_ADMIN_USERNAME=
+  set SUPER_ADMIN_EMAIL=
+  set SUPER_ADMIN_PASSWORD=
   python manage.py create_super_admin --noinput
 
 Alias de variables d’environnement (comme `createsuperuser --noinput`) :
