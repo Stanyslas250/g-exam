@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
+    "simple_history",
     "exams",
 ]
 
@@ -39,6 +40,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "exams.middleware.ExamSelectionMiddleware",
+    "simple_history.middleware.HistoryRequestMiddleware",
 ]
 
 ROOT_URLCONF = "g_exam.urls"
@@ -73,6 +75,11 @@ DATABASES = {
         'PASSWORD': env('POSTGRES_PASSWORD'),
         'HOST': env('POSTGRES_HOST'),
         'PORT': env('POSTGRES_PORT'),
+        # Forcer le search_path (utile si l’hébergeur le vide) ; le schéma `public`
+        # doit exister dans la base (sinon : CREATE SCHEMA public; en superuser).
+        'OPTIONS': {
+            'options': '-c search_path=public',
+        },
     }
 }
 

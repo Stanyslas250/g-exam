@@ -12,6 +12,7 @@ dependencies = [
     "django-environ>=0.11",
     "pillow>=10.0",
     "qrcode[pil]>=8.0,<9",
+    "django-simple-history>=3.11.0",
 ]
 
 [project.optional-dependencies]

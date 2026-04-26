@@ -120,6 +120,68 @@
         color: #073763;
       }
 
+      /* Barres factices : hauteurs 21%–40% (évite le template Django dans `style=`) */
+      .pseudo-mean-chart > *:nth-child(1) {
+        height: 21%;
+      }
+      .pseudo-mean-chart > *:nth-child(2) {
+        height: 22%;
+      }
+      .pseudo-mean-chart > *:nth-child(3) {
+        height: 23%;
+      }
+      .pseudo-mean-chart > *:nth-child(4) {
+        height: 24%;
+      }
+      .pseudo-mean-chart > *:nth-child(5) {
+        height: 25%;
+      }
+      .pseudo-mean-chart > *:nth-child(6) {
+        height: 26%;
+      }
+      .pseudo-mean-chart > *:nth-child(7) {
+        height: 27%;
+      }
+      .pseudo-mean-chart > *:nth-child(8) {
+        height: 28%;
+      }
+      .pseudo-mean-chart > *:nth-child(9) {
+        height: 29%;
+      }
+      .pseudo-mean-chart > *:nth-child(10) {
+        height: 30%;
+      }
+      .pseudo-mean-chart > *:nth-child(11) {
+        height: 31%;
+      }
+      .pseudo-mean-chart > *:nth-child(12) {
+        height: 32%;
+      }
+      .pseudo-mean-chart > *:nth-child(13) {
+        height: 33%;
+      }
+      .pseudo-mean-chart > *:nth-child(14) {
+        height: 34%;
+      }
+      .pseudo-mean-chart > *:nth-child(15) {
+        height: 35%;
+      }
+      .pseudo-mean-chart > *:nth-child(16) {
+        height: 36%;
+      }
+      .pseudo-mean-chart > *:nth-child(17) {
+        height: 37%;
+      }
+      .pseudo-mean-chart > *:nth-child(18) {
+        height: 38%;
+      }
+      .pseudo-mean-chart > *:nth-child(19) {
+        height: 39%;
+      }
+      .pseudo-mean-chart > *:nth-child(20) {
+        height: 40%;
+      }
+
       .cta-btn {
         background: linear-gradient(135deg, #0b5394 0%, #073763 100%);
         color: #fff;
@@ -505,11 +567,12 @@
                         >20 tranches</span
                       >
                     </div>
-                    <div class="flex h-24 items-end gap-1.5">
+                    <div
+                      class="pseudo-mean-chart flex h-24 items-end gap-1.5"
+                    >
                       {% for h in "345689CABDEFC98765"|make_list %}
                       <div
-                        class="flex-1 rounded-t-md"
-                        style="height: {{ forloop.counter|add:20 }}%; background: linear-gradient(180deg, #1d6cb8, #073763);"
+                        class="min-h-0 flex-1 rounded-t-md bg-gradient-to-b from-[#1d6cb8] to-[#073763]"
                       ></div>
                       {% endfor %}
                     </div>
@@ -1065,8 +1128,16 @@
     </section>
 
     <!-- ───────── PRICING ───────── -->
-    <section id="pricing" class="bg-white py-20 sm:py-24">
+    <section id="pricing" class="border-t border-slate-100 bg-slate-50/80 py-20 sm:py-24">
       <div class="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div
+          class="mb-2 flex justify-center"
+          aria-hidden="true"
+        >
+          <div
+            class="h-1 w-16 rounded-full bg-gradient-to-r from-[#073763] to-[#0b5394]"
+          ></div>
+        </div>
         <div class="text-center">
           <span
             class="chip inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
@@ -1080,20 +1151,21 @@
             Un forfait pour chaque besoin
           </h2>
           <p class="mx-auto mt-4 max-w-2xl text-base text-slate-600">
-            Choisissez le plan qui correspond à votre structure. Upgrade ou
-            downgrade à tout moment.
+            Du test gratuit au pack d’examen ciblé et à l’abonnement annuel
+            illimité : tarifs clairs, en FCFA.
           </p>
         </div>
 
+        {% if pricing_plans %}
         <div class="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {% for plan in pricing_plans %}
           <div
-            class="relative flex flex-col rounded-2xl border {% if plan.is_featured %}border-[#0b5394] shadow-xl shadow-[#073763]/10 ring-2 ring-[#0b5394]/20{% else %}border-slate-200 shadow-md{% endif %} bg-white p-7 transition hover:-translate-y-1 hover:shadow-lg"
+            class="relative flex flex-col rounded-2xl border {% if plan.is_featured %}border-[#0b5394] bg-white shadow-xl shadow-[#073763]/10 ring-2 ring-[#0b5394]/20{% else %}border-slate-200 bg-white shadow-md{% endif %} p-7 transition hover:-translate-y-1 hover:shadow-lg"
           >
             {% if plan.is_featured %}
             <span
               class="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full brand-gradient px-4 py-1 text-xs font-bold text-white shadow"
-              >Populaire</span
+              >Recommandé</span
             >
             {% endif %}
 
@@ -1101,51 +1173,146 @@
               {{ plan.name }}
             </h3>
             <p class="mt-1 text-sm text-slate-500">{{ plan.tagline }}</p>
+            {% if plan.description %}
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">
+              {{ plan.description|truncatewords:32 }}
+            </p>
+            {% endif %}
 
-            <div class="mt-6 flex items-baseline gap-1">
-              {% if plan.price_fcfa %}
-              <span class="text-4xl font-extrabold tracking-tight text-slate-900"
-                >{{ plan.price_fcfa|intcomma }}</span
-              >
-              <span class="text-base font-semibold text-slate-500"
-                >FCFA<span class="text-xs"> / {{ plan.get_billing_period_display|lower }}</span></span
-              >
+            <div class="mt-6">
+              {% if plan.billing_period == "FREE" %}
+              <p class="text-4xl font-extrabold tracking-tight text-slate-900">
+                Gratuit
+              </p>
+              <p class="mt-1 text-xs font-medium text-slate-500">
+                Pour démarrer et valider l’usage sur votre contexte
+              </p>
+              {% elif not plan.price_fcfa %}
+              <p class="text-3xl font-extrabold tracking-tight text-slate-900">
+                Sur devis
+              </p>
+              <p class="mt-1 text-sm text-slate-500">
+                {{ plan.get_billing_period_display }} — contactez-nous pour un
+                chiffrage.
+              </p>
               {% else %}
-              <span class="text-4xl font-extrabold tracking-tight text-slate-900"
-                >Gratuit</span
-              >
+              <p class="flex flex-wrap items-baseline gap-1">
+                <span class="text-4xl font-extrabold tracking-tight text-slate-900"
+                  >{{ plan.price_fcfa|intcomma }}</span
+                >
+                <span class="text-base font-semibold text-slate-500">FCFA</span>
+              </p>
+              <p class="mt-1 text-sm font-medium text-slate-600">
+                {% if plan.billing_period == "YEARLY" %}
+                <span>Facturation annuelle (12 mois)</span>
+                {% elif plan.billing_period == "BY_EXAM" %}
+                <span>Paiement par session d’examen (une fois par achat offre)</span>
+                {% else %}
+                <span>{{ plan.get_billing_period_display }}</span>
+                {% endif %}
+              </p>
+              <p
+                class="mt-0.5 text-xs text-slate-500"
+                aria-hidden="true"
+              >Tous montants en francs CFA</p>
               {% endif %}
             </div>
 
-            <ul class="mt-7 flex-1 space-y-3">
+            <div
+              class="mt-6 rounded-xl border border-slate-100 bg-slate-50/90 px-3.5 py-3"
+            >
+              <p
+                class="text-[0.7rem] font-semibold uppercase tracking-wide text-slate-500"
+              >
+                Plafonds
+              </p>
+              <dl
+                class="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs text-slate-600"
+              >
+                <div class="flex justify-between gap-2 sm:block">
+                  <dt class="text-slate-500">Examens</dt>
+                  <dd class="text-right font-medium text-slate-800 sm:text-left">
+                    {% if plan.max_exams %}{{ plan.max_exams|intcomma }}{% else %}Illimité{% endif %}
+                  </dd>
+                </div>
+                <div class="flex justify-between gap-2 sm:block">
+                  <dt class="text-slate-500">Candidats / examen</dt>
+                  <dd class="text-right font-medium text-slate-800 sm:text-left">
+                    {% if plan.max_students_per_exam %}{{ plan.max_students_per_exam|intcomma }}{% else %}Illimité{% endif %}
+                  </dd>
+                </div>
+                <div class="flex justify-between gap-2 sm:block">
+                  <dt class="text-slate-500">Établissements</dt>
+                  <dd class="text-right font-medium text-slate-800 sm:text-left">
+                    {% if plan.max_establishments %}{{ plan.max_establishments|intcomma }}{% else %}Illimité{% endif %}
+                  </dd>
+                </div>
+                <div class="flex justify-between gap-2 sm:block">
+                  <dt class="text-slate-500">Correcteurs</dt>
+                  <dd class="text-right font-medium text-slate-800 sm:text-left">
+                    {% if plan.max_teachers %}{{ plan.max_teachers|intcomma }}{% else %}Illimité{% endif %}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+
+            <ul class="mt-5 flex-1 space-y-2.5">
+              <li
+                class="text-xs font-semibold uppercase tracking-wide text-slate-500"
+              >
+                Inclus
+              </li>
               {% for feat in plan.features %}
               <li class="flex items-start gap-2.5 text-sm text-slate-600">
                 <i
                   data-lucide="check"
                   class="mt-0.5 h-4 w-4 shrink-0 {% if plan.is_featured %}text-[#0b5394]{% else %}text-emerald-500{% endif %}"
+                  aria-hidden="true"
                 ></i>
-                {{ feat }}
+                <span>{{ feat }}</span>
               </li>
+              {% empty %}
+              <li class="text-sm text-slate-500">—</li>
               {% endfor %}
             </ul>
 
+            {% if plan.billing_period == "FREE" %}
+            <a
+              href="{% url 'exams:login' %}"
+              class="mt-8 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold transition {% if plan.is_featured %}brand-gradient text-white shadow-lg shadow-[#073763]/25 hover:-translate-y-0.5{% else %}border border-slate-200 bg-white text-slate-700 hover:border-[#0b5394]/40 hover:text-[#073763]{% endif %}"
+            >
+              <i data-lucide="log-in" class="h-4 w-4" aria-hidden="true"></i>
+              Se connecter
+            </a>
+            {% else %}
             <a
               href="mailto:contact@g-exam.com?subject=Demande%20d'accès%20—%20{{ plan.name|urlencode }}"
               class="mt-8 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold transition {% if plan.is_featured %}brand-gradient text-white shadow-lg shadow-[#073763]/25 hover:-translate-y-0.5{% else %}border border-slate-200 bg-white text-slate-700 hover:border-[#0b5394]/40 hover:text-[#073763]{% endif %}"
             >
-              <i data-lucide="mail" class="h-4 w-4"></i>
-              Demander l'accès
+              <i data-lucide="mail" class="h-4 w-4" aria-hidden="true"></i>
+              Souscrire / nous écrire
             </a>
+            {% endif %}
           </div>
           {% endfor %}
         </div>
+        {% else %}
+        <p
+          class="mx-auto mt-12 max-w-md rounded-2xl border border-amber-200/80 bg-amber-50 px-5 py-4 text-center text-sm text-amber-950"
+        >
+          Aucun forfait actif pour le moment. Depuis le projet, exécutez
+          <code class="rounded bg-amber-100/80 px-1.5 py-0.5 text-xs"
+            >python manage.py seed_forfaits</code
+          > puis rechargez la page.
+        </p>
+        {% endif %}
 
         <p class="mt-10 text-center text-sm text-slate-500">
-          Besoin d'un plan personnalisé ?
+          Coordonnées, volume ou durée atypique ?
           <a
-            href="mailto:contact@g-exam.com?subject=Plan%20personnalisé"
+            href="mailto:contact@g-exam.com?subject=Forfait%20sur%20mesure"
             class="font-semibold text-[#0b5394] hover:underline"
-            >Contactez-nous</a
+            >Demandez un forfait sur mesure</a
           >.
         </p>
       </div>

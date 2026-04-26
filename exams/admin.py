@@ -146,7 +146,16 @@ class HarmonizationAdmin(admin.ModelAdmin):
 
 @admin.register(Plan)
 class PlanAdmin(admin.ModelAdmin):
-    list_display = ("name", "price_fcfa", "billing_period", "max_exams", "is_featured", "is_active", "sort_order")
+    list_display = (
+        "name",
+        "price_fcfa",
+        "billing_period",
+        "max_exams",
+        "max_establishments",
+        "is_featured",
+        "is_active",
+        "sort_order",
+    )
     list_editable = ("is_featured", "is_active", "sort_order")
     list_filter = ("is_active", "billing_period")
     search_fields = ("name", "slug")

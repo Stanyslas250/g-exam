@@ -1,21 +1,22 @@
 import uuid
 
 from django.conf import settings
+from core.models import BaseModel
 from django.db import models
 
 
-class Exam(models.Model):
+class Exam(BaseModel):
     EXAM_TYPE_BAC = "BAC"
     EXAM_TYPE_BEPC = "BEPC"
     EXAM_TYPE_CAP = "CAP"
-    EXAM_TYPE_PROBATOIRE = "PROBATOIRE"
+    EXAM_TYPE_CEP = "CEP"
     EXAM_TYPE_AUTRE = "AUTRE"
 
     EXAM_TYPE_CHOICES = [
         (EXAM_TYPE_BAC, "BAC"),
         (EXAM_TYPE_BEPC, "BEPC"),
         (EXAM_TYPE_CAP, "CAP"),
-        (EXAM_TYPE_PROBATOIRE, "Probatoire"),
+        (EXAM_TYPE_CEP, "CEP"),
         (EXAM_TYPE_AUTRE, "Autre"),
     ]
 
@@ -65,7 +66,7 @@ class Exam(models.Model):
         super().save(*args, **kwargs)
 
 
-class School(models.Model):
+class School(BaseModel):
     name = models.CharField(max_length=255, verbose_name="Nom")
     code = models.CharField(max_length=50, blank=True, default="", verbose_name="Code")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -79,7 +80,7 @@ class School(models.Model):
         return self.name
 
 
-class Student(models.Model):
+class Student(BaseModel):
     GENDER_CHOICES = [
         ("M", "Masculin"),
         ("F", "Féminin"),
@@ -117,7 +118,7 @@ class Student(models.Model):
         return f"{self.last_name} {self.first_name} ({self.candidate_number})"
 
 
-class Subject(models.Model):
+class Subject(BaseModel):
     name = models.CharField(max_length=255, verbose_name="Nom de l'épreuve")
     coefficient = models.FloatField(blank=True, null=True, verbose_name="Coefficient")
     max_score = models.FloatField(default=20.0, verbose_name="Note maximale")
@@ -139,7 +140,7 @@ class Subject(models.Model):
         return self.name
 
 
-class Score(models.Model):
+class Score(BaseModel):
     value = models.FloatField(verbose_name="Note")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -169,7 +170,7 @@ class Score(models.Model):
         return f"{self.student} - {self.subject}: {self.value}"
 
 
-class Teacher(models.Model):
+class Teacher(BaseModel):
     """Enseignant / correcteur (connexion par code, sans compte Django)."""
 
     first_name = models.CharField(max_length=255, verbose_name="Prénom")
@@ -195,7 +196,7 @@ class Teacher(models.Model):
         return f"{self.last_name} {self.first_name} ({self.code})"
 
 
-class SubjectAssignment(models.Model):
+class SubjectAssignment(BaseModel):
     """Assignation d’un correcteur à une épreuve."""
 
     teacher = models.ForeignKey(
@@ -246,7 +247,7 @@ class SubjectAssignment(models.Model):
         return f"{self.teacher} → {self.subject}"
 
 
-class ScoreHistory(models.Model):
+class ScoreHistory(BaseModel):
     """Historique des modifications d’une note."""
 
     REASON_INITIAL = "INITIAL"
@@ -311,7 +312,7 @@ class ScoreHistory(models.Model):
         return f"{self.score_id}: {self.old_value} → {self.new_value} ({self.reason})"
 
 
-class Harmonization(models.Model):
+class Harmonization(BaseModel):
     """Trace d’une opération d’harmonisation sur une épreuve."""
 
     TYPE_ADD = "ADD"
@@ -370,7 +371,7 @@ class Harmonization(models.Model):
         return f"{self.subject} — {self.get_adjustment_type_display()} ({self.value})"
 
 
-class Room(models.Model):
+class Room(BaseModel):
     name = models.CharField(max_length=255, verbose_name="Nom de la salle")
     capacity = models.IntegerField(verbose_name="Capacité")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -391,7 +392,7 @@ class Room(models.Model):
         return self.name
 
 
-class RoomAssignment(models.Model):
+class RoomAssignment(BaseModel):
     seat_number = models.IntegerField(blank=True, null=True, verbose_name="N° de place")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -414,17 +415,21 @@ class RoomAssignment(models.Model):
         return f"{self.student} → {self.room}"
 
 
-class Plan(models.Model):
+class Plan(BaseModel):
     BILLING_FREE = "FREE"
     BILLING_MONTHLY = "MONTHLY"
     BILLING_YEARLY = "YEARLY"
     BILLING_CUSTOM = "CUSTOM"
+    BILLING_BY_EXAM = "BY_EXAM"
+    BILLING_BY_STUDENT = "BY_STUDENT"
 
     BILLING_CHOICES = [
         (BILLING_FREE, "Gratuit"),
         (BILLING_MONTHLY, "Par mois"),
         (BILLING_YEARLY, "Par an"),
         (BILLING_CUSTOM, "Sur devis"),
+        (BILLING_BY_EXAM, "Par examen"),
+        (BILLING_BY_STUDENT, "Par élève"),
     ]
 
     name = models.CharField(max_length=100, unique=True, verbose_name="Nom du forfait")
@@ -450,6 +455,10 @@ class Plan(models.Model):
         null=True, blank=True, verbose_name="Nb max de correcteurs",
         help_text="Vide = illimité.",
     )
+    max_establishments = models.PositiveIntegerField(
+        null=True, blank=True, verbose_name="Nb max d'établissements",
+        help_text="Vide = illimité.",
+    )
     features = models.JSONField(
         default=list, blank=True, verbose_name="Fonctionnalités incluses",
         help_text="Liste de chaînes affichées sur la page tarifs.",
@@ -467,7 +476,7 @@ class Plan(models.Model):
         return self.name
 
 
-class UserProfile(models.Model):
+class UserProfile(BaseModel):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile", verbose_name="Utilisateur",
     )
